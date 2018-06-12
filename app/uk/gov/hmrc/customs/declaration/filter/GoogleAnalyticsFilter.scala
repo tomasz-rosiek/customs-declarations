@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.customs.declaration.poc
+package uk.gov.hmrc.customs.declaration.filter
 
 import java.util.UUID
 
@@ -65,7 +65,7 @@ class GoogleAnalyticsFilter @Inject()(logger: DeclarationsLogger, googleAnalytic
         val maybeHasConversationId: Option[HasConversationId] = result.header.headers.get(CustomHeaderNames.XConversationIdHeaderName).map(cid => new HasConversationId {
           override val conversationId: ConversationId = ConversationId(UUID.fromString(cid))
         })
-        implicit val data = new HasConversationId with HasAnalyticsValues {
+        implicit val data: HasConversationId with HasAnalyticsValues = new HasConversationId with HasAnalyticsValues {
           override val conversationId: ConversationId = maybeHasConversationId.get.conversationId
           override val analyticsValues: GoogleAnalyticsValues = maybeAnalyticValues.get
         }
@@ -91,7 +91,7 @@ class GoogleAnalyticsFilter @Inject()(logger: DeclarationsLogger, googleAnalytic
     }
   }
 
-  private def debugLog(message: String, maybeConversationId: Option[HasConversationId]) = {
+  private def debugLog(message: String, maybeConversationId: Option[HasConversationId]): Unit = {
     maybeConversationId.fold {
       logger.debugWithoutRequestContext(message)
     } { cid =>
