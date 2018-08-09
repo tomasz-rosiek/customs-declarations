@@ -25,7 +25,7 @@ import org.scalatest.mockito.MockitoSugar.mock
 import play.api.http.HeaderNames._
 import play.api.http.{HeaderNames, MimeTypes}
 import play.api.inject.guice.GuiceableModule
-import play.api.libs.json.{JsObject, JsString, JsValue, Json}
+import play.api.libs.json._
 import play.api.mvc.AnyContentAsXml
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
@@ -37,6 +37,7 @@ import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders._
 import uk.gov.hmrc.customs.declaration.services.{UniqueIdsService, UuidService}
+import uk.gov.hmrc.http.controllers.RestFormats
 
 import scala.xml.Elem
 
@@ -85,6 +86,9 @@ object TestData {
   val nrsItmpName = ItmpName(Some("givenName"),
                             Some("middleName"),
                             Some("familyName"))
+
+  val nrsItmpDateOfBirth = Some("01/01/1980")
+
   val nrsItmpAddress = ItmpAddress(Some("line1"),
                                   Some("line2"),
                                   Some("line3"),
@@ -117,16 +121,18 @@ object TestData {
                                             nrsCredentialRole,
                                             Some(nrsMdtpInformation),
                                             nrsItmpName,
-                                            nrsDateOfBirth,
+                                            nrsItmpDateOfBirth,
                                             nrsItmpAddress,
                                             nrsAffinityGroup,
                                             nrsCredentialStrength,
                                             nrsLoginTimes)
 
+  val itmpDateOfBirthOptional: Retrieval[Option[String]] = OptionalRetrieval("itmpDateOfBirth", Reads.StringReads)
+
   val nrsRetrievalData = Retrievals.internalId and Retrievals.externalId and Retrievals.agentCode and Retrievals.credentials and Retrievals.confidenceLevel and
     Retrievals.nino and Retrievals.saUtr and Retrievals.name and Retrievals.dateOfBirth and
     Retrievals.email and Retrievals.agentInformation and Retrievals.groupIdentifier and Retrievals.credentialRole and Retrievals.mdtpInformation and
-    Retrievals.itmpName and Retrievals.itmpDateOfBirth and Retrievals.itmpAddress and Retrievals.affinityGroup and Retrievals.credentialStrength and Retrievals.loginTimes
+    Retrievals.itmpName and itmpDateOfBirthOptional and Retrievals.itmpAddress and Retrievals.affinityGroup and Retrievals.credentialStrength and Retrievals.loginTimes
 
   val nrsReturnData = new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~( new ~(new ~(Some(nrsInternalIdValue)
     ,Some(nrsExternalIdValue)),
@@ -143,7 +149,7 @@ object TestData {
     nrsCredentialRole),
     Some(nrsMdtpInformation)),
     nrsItmpName),
-    nrsDateOfBirth),
+    nrsItmpDateOfBirth),
     nrsItmpAddress),
     nrsAffinityGroup),
     nrsCredentialStrength),

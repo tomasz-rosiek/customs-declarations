@@ -53,7 +53,7 @@ trait AuthConnectorStubbing extends UnitSpec with MockitoSugar {
       .thenReturn(Future.failed(authException))
   }
 
-  type NrsDataType = Option[String] ~ Option[String] ~ Option[String] ~ Credentials ~ ConfidenceLevel ~ Option[String] ~ Option[String] ~ Name ~ Option[LocalDate] ~ Option[String] ~ AgentInformation ~ Option[String] ~ Option[CredentialRole] ~ Option[MdtpInformation] ~ ItmpName ~ Option[LocalDate] ~ ItmpAddress ~ Option[AffinityGroup] ~ Option[String] ~ LoginTimes
+  type NrsDataType = Option[String] ~ Option[String] ~ Option[String] ~ Credentials ~ ConfidenceLevel ~ Option[String] ~ Option[String] ~ Name ~ Option[LocalDate] ~ Option[String] ~ AgentInformation ~ Option[String] ~ Option[CredentialRole] ~ Option[MdtpInformation] ~ ItmpName ~ Option[String] ~ ItmpAddress ~ Option[AffinityGroup] ~ Option[String] ~ LoginTimes
   type NrsRetrievalDataType = Retrieval[NrsDataType]
   type NrsRetrievalDataTypeWithEnrolments = Retrieval[NrsDataType ~ Enrolments]
 

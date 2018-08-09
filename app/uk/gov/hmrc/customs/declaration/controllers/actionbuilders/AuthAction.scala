@@ -17,9 +17,11 @@
 package uk.gov.hmrc.customs.declaration.controllers.actionbuilders
 
 import javax.inject.{Inject, Singleton}
+
 import org.joda.time.LocalDate
 import play.api.http.Status
 import play.api.http.Status.UNAUTHORIZED
+import play.api.libs.json.Reads
 import play.api.mvc.{ActionRefiner, RequestHeader, Result}
 import uk.gov.hmrc.auth.core.AuthProvider.{GovernmentGateway, PrivilegedApplication}
 import uk.gov.hmrc.auth.core._
@@ -33,6 +35,7 @@ import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedRequest, ValidatedHeadersRequest}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.controllers.RestFormats
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.HeaderCarrierConverter
 
@@ -68,18 +71,21 @@ class AuthAction @Inject()(
     ErrorResponse(UNAUTHORIZED, UnauthorizedCode, "EORI number not found in Customs Enrolment")
   private lazy val xBadgeIdentifierRegex = "^[0-9A-Z]{6,12}$".r
 
-  type NrsRetrievalDataType = Retrieval[Option[String] ~ Option[String] ~ Option[String] ~ Credentials ~ ConfidenceLevel ~ Option[String] ~ Option[String] ~ Name ~ Option[LocalDate] ~ Option[String] ~ AgentInformation ~ Option[String] ~ Option[CredentialRole] ~ Option[MdtpInformation] ~ ItmpName ~ Option[LocalDate] ~ ItmpAddress ~ Option[AffinityGroup] ~ Option[String] ~ LoginTimes]
-  type NrsEnrolmentType = Retrieval[Option[String] ~ Option[String] ~ Option[String] ~ Credentials ~ ConfidenceLevel ~ Option[String] ~ Option[String] ~ Name ~ Option[LocalDate] ~ Option[String] ~ AgentInformation ~ Option[String] ~ Option[CredentialRole] ~ Option[MdtpInformation] ~ ItmpName ~ Option[LocalDate] ~ ItmpAddress ~ Option[AffinityGroup] ~ Option[String] ~ LoginTimes ~ Enrolments]
+  type NrsDataType = Option[String] ~ Option[String] ~ Option[String] ~ Credentials ~ ConfidenceLevel ~ Option[String] ~ Option[String] ~ Name ~ Option[LocalDate] ~ Option[String] ~ AgentInformation ~ Option[String] ~ Option[CredentialRole] ~ Option[MdtpInformation] ~ ItmpName ~ Option[String] ~ ItmpAddress ~ Option[AffinityGroup] ~ Option[String] ~ LoginTimes
+  type NrsRetrievalDataType = Retrieval[NrsDataType]
+  type NrsRetrievalDataTypeWithEnrolments =  Retrieval[NrsDataType ~ Enrolments]
+
+  private val itmpDateOfBirthString: Retrieval[Option[String]] = OptionalRetrieval("itmpDateOfBirth", Reads.StringReads)
 
   private val nrsRetrievalData: NrsRetrievalDataType  = Retrievals.internalId and Retrievals.externalId and Retrievals.agentCode and Retrievals.credentials and Retrievals.confidenceLevel and
     Retrievals.nino and Retrievals.saUtr and Retrievals.name and Retrievals.dateOfBirth and
     Retrievals.email and Retrievals.agentInformation and Retrievals.groupIdentifier and Retrievals.credentialRole and Retrievals.mdtpInformation and
-    Retrievals.itmpName and Retrievals.itmpDateOfBirth and Retrievals.itmpAddress and Retrievals.affinityGroup and Retrievals.credentialStrength and Retrievals.loginTimes
+    Retrievals.itmpName and itmpDateOfBirthString and Retrievals.itmpAddress and Retrievals.affinityGroup and Retrievals.credentialStrength and Retrievals.loginTimes
 
-  private val nrsEnrolments: NrsEnrolmentType = Retrievals.internalId and Retrievals.externalId and Retrievals.agentCode and Retrievals.credentials and Retrievals.confidenceLevel and
+  private val nrsEnrolments: NrsRetrievalDataTypeWithEnrolments = Retrievals.internalId and Retrievals.externalId and Retrievals.agentCode and Retrievals.credentials and Retrievals.confidenceLevel and
     Retrievals.nino and Retrievals.saUtr and Retrievals.name and Retrievals.dateOfBirth and
     Retrievals.email and Retrievals.agentInformation and Retrievals.groupIdentifier and Retrievals.credentialRole and Retrievals.mdtpInformation and
-    Retrievals.itmpName and Retrievals.itmpDateOfBirth and Retrievals.itmpAddress and Retrievals.affinityGroup and Retrievals.credentialStrength and Retrievals.loginTimes and Retrievals.authorisedEnrolments
+    Retrievals.itmpName and itmpDateOfBirthString and Retrievals.itmpAddress and Retrievals.affinityGroup and Retrievals.credentialStrength and Retrievals.loginTimes and Retrievals.authorisedEnrolments
 
   override def refine[A](vhr: ValidatedHeadersRequest[A]): Future[Either[Result, AuthorisedRequest[A]]] = {
     implicit val implicitVhr = vhr
