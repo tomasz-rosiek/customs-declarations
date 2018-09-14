@@ -20,11 +20,12 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.mvc.Result
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse
-import uk.gov.hmrc.customs.declaration.connectors.{ApiSubscriptionFieldsConnector, DeclarationStatusConnector}
+import uk.gov.hmrc.customs.declaration.connectors.{ApiSubscriptionFieldsConnector, DeclarationStatusConnector, MdgDeclarationStatusConnector}
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.AuthorisedStatusRequest
+import uk.gov.hmrc.customs.declaration.xml.MdgPayloadDecorator
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,7 +36,7 @@ import scala.util.control.NonFatal
 @Singleton
 class DeclarationStatusService @Inject()(logger: DeclarationsLogger,
                                          apiSubFieldsConnector: ApiSubscriptionFieldsConnector,
-                                         declarationStatusConnector: DeclarationStatusConnector,
+                                         declarationStatusConnector: MdgDeclarationStatusConnector,
                                          config: DeclarationsConfigService,
                                          dateTimeProvider: DateTimeService,
                                          uniqueIdsService: UniqueIdsService) {
@@ -46,10 +47,12 @@ class DeclarationStatusService @Inject()(logger: DeclarationsLogger,
     val correlationId = uniqueIdsService.correlation
     val dmirId = uniqueIdsService.dmir
 
-    declarationStatusConnector.send(dateTime, correlationId, dmirId, asr.requestedApiVersion, mrn)
+    val declarationStatusPayload = new MdgPayloadDecorator().status(asr, correlationId, dateTime, mrn, dmirId)
+
+    declarationStatusConnector.send(declarationStatusPayload, dateTime, correlationId.uuid, asr.requestedApiVersion)
       .map(f => Right(f)).recover{
       case NonFatal(e) =>
-        logger.error(s"Upscan initiate call failed: ${e.getMessage}", e)
+        logger.error(s"Declaration status call failed: ${e.getMessage}", e)
         Left(ErrorResponse.ErrorInternalServerError.XmlResult.withConversationId)
     }
   }
