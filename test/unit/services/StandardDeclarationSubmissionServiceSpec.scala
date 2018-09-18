@@ -25,6 +25,7 @@ import org.mockito.Mockito.{verify, verifyZeroInteractions, when}
 import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.{AnyContentAsXml, Result}
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.{ApiSubscriptionFieldsConnector, MdgWcoDeclarationConnector}
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
@@ -35,6 +36,7 @@ import uk.gov.hmrc.customs.declaration.xml.MdgPayloadDecorator
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import util.ApiSubscriptionFieldsTestData._
+import util.DeclarationsLoggerStub
 import util.TestData._
 
 import scala.concurrent.Future
@@ -48,7 +50,7 @@ class StandardDeclarationSubmissionServiceSpec extends UnitSpec with MockitoSuga
   private val wrappedValidXML = <wrapped></wrapped>
 
   trait SetUp {
-    protected val mockLogger: DeclarationsLogger = mock[DeclarationsLogger]
+    protected val mockLogger: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     protected val mockMdgDeclarationConnector: MdgWcoDeclarationConnector = mock[MdgWcoDeclarationConnector]
     protected val mockApiSubscriptionFieldsConnector: ApiSubscriptionFieldsConnector = mock[ApiSubscriptionFieldsConnector]
     protected val mockPayloadDecorator: MdgPayloadDecorator = mock[MdgPayloadDecorator]

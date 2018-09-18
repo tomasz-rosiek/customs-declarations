@@ -37,6 +37,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.{AnyContentAsXml, Result}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.customs.api.common.controllers.{ErrorResponse, ResponseContents}
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders.PayloadValidationAction
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
@@ -45,7 +46,7 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHe
 import uk.gov.hmrc.customs.declaration.model.actionbuilders._
 import uk.gov.hmrc.customs.declaration.services.XmlValidationService
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData
+import util.{DeclarationsLoggerStub, TestData}
 import util.TestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -62,7 +63,7 @@ class PayloadValidationActionSpec extends UnitSpec with MockitoSugar {
 
   trait SetUp {
     val mockXmlValidationService: XmlValidationService = mock[XmlValidationService]
-    val mockExportsLogger: DeclarationsLogger = mock[DeclarationsLogger]
+    val mockExportsLogger: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     val mockGoogleAnalyticsConnector: GoogleAnalyticsConnector = mock[GoogleAnalyticsConnector]
     val payloadValidationAction: PayloadValidationAction = new PayloadValidationAction(mockXmlValidationService, mockExportsLogger, Some(mockGoogleAnalyticsConnector)){}
   }

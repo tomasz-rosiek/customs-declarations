@@ -35,7 +35,7 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.{HasAnalyticsValues,
 import uk.gov.hmrc.customs.declaration.services.{DeclarationsConfigService, StandardDeclarationSubmissionService, UniqueIdsService, XmlValidationService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import util.{AuthConnectorStubbing, TestData}
+import util.{AuthConnectorStubbing, DeclarationsLoggerStub, TestData}
 import util.FakeRequests._
 import util.RequestHeaders._
 import util.TestData._
@@ -49,7 +49,7 @@ class CustomsDeclarationControllerSpec extends UnitSpec
   trait SetUp extends AuthConnectorStubbing {
     override val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
-    protected val mockDeclarationsLogger: DeclarationsLogger = mock[DeclarationsLogger]
+    protected val mockDeclarationsLogger: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     protected val mockCdsLogger: CdsLogger = mock[CdsLogger]
     protected val mockBusinessService: StandardDeclarationSubmissionService = mock[StandardDeclarationSubmissionService]
     protected val mockErrorResponse: ErrorResponse = mock[ErrorResponse]

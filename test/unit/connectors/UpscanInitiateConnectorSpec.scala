@@ -26,6 +26,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{Json, Writes}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.customs.api.common.config.{ServiceConfig, ServiceConfigProvider}
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.UpscanInitiateConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
@@ -33,7 +34,7 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.ValidatedUploadPaylo
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData
+import util.{DeclarationsLoggerStub, TestData}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.xml.NodeSeq
@@ -41,7 +42,7 @@ import scala.xml.NodeSeq
 class UpscanInitiateConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with Eventually {
 
   private val mockWsPost = mock[HttpClient]
-  private val mockLogger = mock[DeclarationsLogger]
+  private val mockLogger = new DeclarationsLoggerStub(mock[CdsLogger])
   private val mockServiceConfigProvider = mock[ServiceConfigProvider]
 
   private val connector = new UpscanInitiateConnector(mockWsPost, mockLogger, mockServiceConfigProvider)
@@ -65,7 +66,7 @@ class UpscanInitiateConnectorSpec extends UnitSpec with MockitoSugar with Before
     DocumentationType("documentationType")
   )
   override protected def beforeEach() {
-    reset(mockWsPost, mockLogger, mockServiceConfigProvider)
+    reset(mockWsPost, mockServiceConfigProvider)
     when(mockServiceConfigProvider.getConfig("upscan-initiate")).thenReturn(v1Config)
     when(mockServiceConfigProvider.getConfig("v2.upscan-initiate")).thenReturn(v2Config)
   }

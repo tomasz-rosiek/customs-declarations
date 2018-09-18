@@ -22,6 +22,7 @@ import play.api.http.HeaderNames._
 import play.api.test.FakeRequest
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse._
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames._
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders.HeaderValidator
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
@@ -29,7 +30,7 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AnalyticsValuesAndC
 import uk.gov.hmrc.customs.declaration.model.{GoogleAnalyticsValues, VersionOne, VersionThree, VersionTwo}
 import uk.gov.hmrc.play.test.UnitSpec
 import util.RequestHeaders.{ValidHeadersV2, _}
-import util.{ApiSubscriptionFieldsTestData, TestData}
+import util.{ApiSubscriptionFieldsTestData, DeclarationsLoggerStub, TestData}
 
 class HeaderValidatorSpec extends UnitSpec with TableDrivenPropertyChecks with MockitoSugar {
 
@@ -38,7 +39,7 @@ class HeaderValidatorSpec extends UnitSpec with TableDrivenPropertyChecks with M
   private val extractedHeadersWithBadgeIdentifierV3 = extractedHeadersWithBadgeIdentifierV1.copy(requestedApiVersion = VersionThree)
 
   trait SetUp {
-    val loggerMock: DeclarationsLogger = mock[DeclarationsLogger]
+    val loggerMock: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     val validator = new HeaderValidator(loggerMock)
 
     def validate(c: AnalyticsValuesAndConversationIdRequest[_]): Either[ErrorResponse, ExtractedHeaders] = {

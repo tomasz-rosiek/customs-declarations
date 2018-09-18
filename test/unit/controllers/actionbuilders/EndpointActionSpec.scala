@@ -18,6 +18,7 @@ package unit.controllers.actionbuilders
 
 import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders.EndpointAction
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model.GoogleAnalyticsValues
@@ -25,13 +26,13 @@ import uk.gov.hmrc.customs.declaration.model.GoogleAnalyticsValues.Submit
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.AnalyticsValuesAndConversationIdRequest
 import uk.gov.hmrc.customs.declaration.services.UniqueIdsService
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData
+import util.{DeclarationsLoggerStub, TestData}
 import util.TestData.conversationId
 
 class EndpointActionSpec extends UnitSpec with MockitoSugar {
 
   trait SetUp {
-    private val mockExportsLogger = mock[DeclarationsLogger]
+    private val mockExportsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     val request = FakeRequest()
     val endpointAction = new EndpointAction {
       override val logger: DeclarationsLogger = mockExportsLogger

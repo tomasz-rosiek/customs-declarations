@@ -26,6 +26,7 @@ import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.{ApiSubscriptionFieldsConnector, UpscanInitiateConnector}
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.{ValidatedPayloadRequest, ValidatedUploadPayloadRequest}
@@ -34,6 +35,7 @@ import uk.gov.hmrc.customs.declaration.services.{DeclarationsConfigService, File
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import util.ApiSubscriptionFieldsTestData.apiSubscriptionFieldsResponse
+import util.DeclarationsLoggerStub
 import util.TestData._
 
 import scala.concurrent.Future
@@ -44,7 +46,7 @@ class FileUploadBusinessServiceSpec extends UnitSpec with MockitoSugar {
   private implicit val vpr: ValidatedPayloadRequest[AnyContentAsXml] = TestCspValidatedPayloadRequest
 
   trait SetUp {
-    protected val mockLogger: DeclarationsLogger = mock[DeclarationsLogger]
+    protected val mockLogger: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     protected val mockApiSubscriptionFieldsConnector: ApiSubscriptionFieldsConnector = mock[ApiSubscriptionFieldsConnector]
     protected val mockUpscanInitiateConnector: UpscanInitiateConnector = mock[UpscanInitiateConnector]
     protected val mockUpscanInitiateResponsePayload: UpscanInitiateResponsePayload = mock[UpscanInitiateResponsePayload]

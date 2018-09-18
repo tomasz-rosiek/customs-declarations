@@ -22,6 +22,7 @@ import play.api.http.Status
 import play.api.http.Status.UNAUTHORIZED
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse.{ErrorInternalServerError, UnauthorizedCode, errorBadRequest}
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders.AuthAction
@@ -32,7 +33,7 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.AnalyticsValuesAndCo
 import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
 import uk.gov.hmrc.play.test.UnitSpec
 import util.TestData._
-import util.{AuthConnectorNrsDisabledStubbing, AuthConnectorStubbing, RequestHeaders, TestData}
+import util._
 
 class AuthActionSpec extends UnitSpec with MockitoSugar {
 
@@ -55,7 +56,7 @@ class AuthActionSpec extends UnitSpec with MockitoSugar {
     AnalyticsValuesAndConversationIdRequest(conversationId, GoogleAnalyticsValues.Submit, testFakeRequestWithBadgeId(badgeIdString = "(*&*(^&*&%")).toValidatedHeadersRequest(TestExtractedHeaders)
 
   trait SetUp {
-    val mockExportsLogger: DeclarationsLogger = mock[DeclarationsLogger]
+    val mockExportsLogger: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     val mockGoogleAnalyticsConnector: GoogleAnalyticsConnector = mock[GoogleAnalyticsConnector]
     val mockDeclarationConfigService: DeclarationsConfigService = mock[DeclarationsConfigService]
   }

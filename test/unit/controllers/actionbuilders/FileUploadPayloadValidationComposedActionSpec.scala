@@ -24,6 +24,7 @@ import play.api.test.FakeRequest
 import play.mvc.Http.Status.FORBIDDEN
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse._
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders.{FileUploadPayloadValidationAction, FileUploadPayloadValidationComposedAction}
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
@@ -31,7 +32,7 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHe
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedRequest, ValidatedPayloadRequest, ValidatedUploadPayloadRequest}
 import uk.gov.hmrc.play.test.UnitSpec
 import util.ApiSubscriptionFieldsTestData.clientId
-import util.{RequestHeaders, TestData}
+import util.{DeclarationsLoggerStub, RequestHeaders, TestData}
 import util.TestData._
 
 import scala.concurrent.Future
@@ -40,7 +41,7 @@ import scala.xml.NodeSeq
 class FileUploadPayloadValidationComposedActionSpec extends UnitSpec with MockitoSugar with TableDrivenPropertyChecks {
 
   trait SetUp {
-    val mockLogger: DeclarationsLogger = mock[DeclarationsLogger]
+    val mockLogger: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     val mockFileUploadPayloadValidationAction: FileUploadPayloadValidationAction = mock[FileUploadPayloadValidationAction]
     val fileUploadPayloadValidationComposedAction: FileUploadPayloadValidationComposedAction = new FileUploadPayloadValidationComposedAction(mockFileUploadPayloadValidationAction, mockLogger)
   }

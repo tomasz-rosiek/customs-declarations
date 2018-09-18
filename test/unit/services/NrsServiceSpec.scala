@@ -22,6 +22,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.mockito.MockitoSugar
 import play.api.mvc._
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.NrsConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ValidatedPayloadRequest
@@ -29,7 +30,7 @@ import uk.gov.hmrc.customs.declaration.model.{ApiVersion, _}
 import uk.gov.hmrc.customs.declaration.services.{DateTimeService, NrsService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData
+import util.{DeclarationsLoggerStub, TestData}
 import util.TestData._
 
 import scala.concurrent.Future
@@ -39,7 +40,7 @@ class NrsServiceSpec extends UnitSpec with MockitoSugar {
   private implicit val vpr: ValidatedPayloadRequest[AnyContentAsXml] = TestCspValidatedPayloadRequest
 
   trait SetUp {
-    protected val mockLogger: DeclarationsLogger = mock[DeclarationsLogger]
+    protected val mockLogger: DeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
     protected val mockDateTimeService: DateTimeService = mock[DateTimeService]
     protected val mockNrsConnector: NrsConnector = mock[NrsConnector]
 

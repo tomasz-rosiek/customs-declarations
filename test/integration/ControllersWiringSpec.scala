@@ -18,11 +18,13 @@ package integration
 
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers._
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders._
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.services._
+import util.DeclarationsLoggerStub
 
 class ControllersWiringSpec extends IntegrationTestSpec with GuiceOneAppPerSuite with MockitoSugar {
 
@@ -32,7 +34,7 @@ class ControllersWiringSpec extends IntegrationTestSpec with GuiceOneAppPerSuite
   private lazy val mockAmendXmlValidationService = mock[AmendXmlValidationService]
   private lazy val mockArrivalNotificationXmlValidationService = mock[ArrivalNotificationXmlValidationService]
   private lazy val mockFileUploadXmlValidationService = mock[FileUploadXmlValidationService]
-  private lazy val mockDeclarationsLogger = mock[DeclarationsLogger]
+  private lazy val mockDeclarationsLogger = new DeclarationsLoggerStub(mock[CdsLogger])
   private lazy val mockGoogleAnalyticsConnector = mock[GoogleAnalyticsConnector]
   private lazy val clearanceController = app.injector.instanceOf[ClearanceDeclarationController]
   private lazy val amendController = app.injector.instanceOf[AmendDeclarationController]

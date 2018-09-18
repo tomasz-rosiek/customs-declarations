@@ -27,6 +27,7 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.AnyContentAsJson
 import play.api.test.FakeRequest
 import uk.gov.hmrc.customs.api.common.config.{ServiceConfig, ServiceConfigProvider}
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.NrsConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
@@ -35,7 +36,7 @@ import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData
+import util.{DeclarationsLoggerStub, TestData}
 import util.TestData.nrsConfigEnabled
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,7 +45,7 @@ import scala.xml.NodeSeq
 class NrsConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with Eventually {
 
   private val mockWsPost = mock[HttpClient]
-  private val mockLogger = mock[DeclarationsLogger]
+  private val mockLogger = new DeclarationsLoggerStub(mock[CdsLogger])
   private val mockServiceConfigProvider = mock[ServiceConfigProvider]
   private val mockDeclarationsConfigService = mock[DeclarationsConfigService]
   private val connector = new NrsConnector(mockWsPost, mockLogger, mockServiceConfigProvider, mockDeclarationsConfigService)
@@ -67,7 +68,7 @@ class NrsConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEac
   private val httpException = new NotFoundException("Emulated 404 response from a web call")
 
   override protected def beforeEach() {
-    reset(mockWsPost, mockLogger, mockServiceConfigProvider)
+    reset(mockWsPost, mockServiceConfigProvider)
     when(mockServiceConfigProvider.getConfig("nrs-service")).thenReturn(v1Config)
     when(mockServiceConfigProvider.getConfig("v2.nrs-service")).thenReturn(v2Config)
     when(mockDeclarationsConfigService.nrsConfig).thenReturn(nrsConfigEnabled)

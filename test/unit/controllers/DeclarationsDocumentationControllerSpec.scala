@@ -25,14 +25,16 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test._
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.controllers.DeclarationsDocumentationController
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
+import util.DeclarationsLoggerStub
 
 class DeclarationsDocumentationControllerSpec extends PlaySpec with MockitoSugar with Results with BeforeAndAfterEach {
 
   private val mockService = mock[HttpErrorHandler]
 
-  private val mockLogger = mock[DeclarationsLogger]
+  private val mockLogger = new DeclarationsLoggerStub(mock[CdsLogger])
 
   private val v1WhitelistedAppIdsConfigs = Map(
     "api.access.version-1.0.whitelistedApplicationIds.0" -> "v1AppId-1",

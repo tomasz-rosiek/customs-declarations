@@ -21,6 +21,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.Eventually
 import org.scalatest.mockito.MockitoSugar
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.ApiSubscriptionFieldsConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
@@ -30,7 +31,7 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
 import util.CustomsDeclarationsExternalServicesConfig.ApiSubscriptionFieldsContext
 import util.ExternalServicesConfig._
-import util.{ApiSubscriptionFieldsTestData, TestData}
+import util.{ApiSubscriptionFieldsTestData, DeclarationsLoggerStub, TestData}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +42,7 @@ class ApiSubscriptionFieldsConnectorSpec extends UnitSpec
   with ApiSubscriptionFieldsTestData {
 
   private val mockWSGetImpl = mock[HttpClient]
-  private val mockLogger = mock[DeclarationsLogger]
+  private val mockLogger = new DeclarationsLoggerStub(mock[CdsLogger])
   private val mockDeclarationsConfigService = mock[DeclarationsConfigService]
   private val mockDeclarationsConfig = mock[DeclarationsConfig]
   private implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -53,7 +54,7 @@ class ApiSubscriptionFieldsConnectorSpec extends UnitSpec
   private val expectedUrl = s"http://$Host:$Port$ApiSubscriptionFieldsContext/application/SOME_X_CLIENT_ID/context/some/api/context/version/1.0"
 
   override protected def beforeEach() {
-    reset(mockLogger, mockWSGetImpl, mockDeclarationsConfigService)
+    reset(mockWSGetImpl, mockDeclarationsConfigService)
 
     when(mockDeclarationsConfigService.declarationsConfig).thenReturn(mockDeclarationsConfig)
     when(mockDeclarationsConfig.apiSubscriptionFieldsBaseUrl).thenReturn(s"http://$Host:$Port$ApiSubscriptionFieldsContext")

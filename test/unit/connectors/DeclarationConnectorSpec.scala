@@ -29,6 +29,7 @@ import play.api.http.HeaderNames
 import play.api.mvc.AnyContentAsXml
 import play.mvc.Http.MimeTypes
 import uk.gov.hmrc.customs.api.common.config.{ServiceConfig, ServiceConfigProvider}
+import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors.MdgDeclarationConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
@@ -37,14 +38,14 @@ import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData
+import util.{DeclarationsLoggerStub, TestData}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeclarationConnectorSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach with Eventually {
 
   private val mockWsPost = mock[HttpClient]
-  private val mockLogger = mock[DeclarationsLogger]
+  private val mockLogger = new DeclarationsLoggerStub(mock[CdsLogger])
   private val mockServiceConfigProvider = mock[ServiceConfigProvider]
   private val mockDeclarationsConfigService = mock[DeclarationsConfigService]
   private val mockDeclarationsCircuitBreakerConfig = mock[DeclarationsCircuitBreakerConfig]
@@ -72,7 +73,7 @@ class DeclarationConnectorSpec extends UnitSpec with MockitoSugar with BeforeAnd
   private implicit val vpr: ValidatedPayloadRequest[AnyContentAsXml] = TestData.TestCspValidatedPayloadRequest
 
   override protected def beforeEach() {
-    reset(mockWsPost, mockLogger, mockServiceConfigProvider)
+    reset(mockWsPost, mockServiceConfigProvider)
     when(mockServiceConfigProvider.getConfig("wco-declaration")).thenReturn(v1Config)
     when(mockServiceConfigProvider.getConfig("v2.wco-declaration")).thenReturn(v2Config)
     when(mockServiceConfigProvider.getConfig("v3.wco-declaration")).thenReturn(v3Config)
