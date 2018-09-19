@@ -70,7 +70,7 @@ class ControllersWiringSpec extends IntegrationTestSpec with GuiceOneAppPerSuite
       val action = arrivalNotificationController.payloadValidationAction
 
       action.getClass.getSimpleName shouldBe new ArrivalNotificationPayloadValidationAction(mockArrivalNotificationXmlValidationService, mockDeclarationsLogger, mockGoogleAnalyticsConnector).getClass.getSimpleName
-      action.xmlValidationService.schemaPropertyName shouldBe "xsd.locations.submit"
+      action.xmlValidationService.schemaPropertyName shouldBe "xsd.locations.arrival"
     }
     "be wired into FileUploadController" in {
       val action = fileUploadController.fileUploadPayloadValidationComposedAction.fileUploadPayloadValidationAction
