@@ -34,3 +34,4 @@ test-result
 tmp
 .idea_modules
 bin
+public/api/conf/2.0/schemas/temp

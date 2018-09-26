@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="urn:wco:datamodel:WCO:DEC-DMS:2" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ds="urn:wco:datamodel:WCO:Declaration_DS:DMS:2" targetNamespace="urn:wco:datamodel:WCO:DEC-DMS:2"
+	elementFormDefault="qualified" version="2.3">
+	<xs:import namespace="urn:wco:datamodel:WCO:Declaration_DS:DMS:2"
+		schemaLocation="WCO_DS/WCO_DEC_DS_2_DMS.xsd" />
+	<xs:element name="Declaration" type="Declaration">
+		<xs:annotation>
+			<xs:documentation xml:lang="EN">
+				<WCOID>42A</WCOID>
+				<WCOName>Declaration</WCOName>
+				<WCODescription>THIS IS FOR CANCELLATION</WCODescription>
+			</xs:documentation>
+			<xs:documentation>
+				<WCOUsageDeclarationIM>X</WCOUsageDeclarationIM>
+				<WCOUsageDeclarationEX>X</WCOUsageDeclarationEX>
+				<WCOUsageDeclarationCRI>X</WCOUsageDeclarationCRI>
+				<WCOUsageDeclarationCRE>X</WCOUsageDeclarationCRE>
+				<WCOUsageDeclarationCONV>X</WCOUsageDeclarationCONV>
+				<WCOUsageDeclarationTRT>X</WCOUsageDeclarationTRT>
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="Declaration">
+		<xs:sequence>
+			<xs:element name="ID" type="ds:DeclarationIdentificationIDType" minOccurs="1" />
+			<xs:element name="TypeCode" type="ds:DeclarationTypeCodeType" minOccurs="1" />
+			<xs:element name="Submitter" minOccurs="0" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="ID" type="ds:SubmitterIdentificationIDType" minOccurs="1">
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Amendment" minOccurs="1" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Pointer" minOccurs="1" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="SequenceNumeric" type="ds:PointerSequenceNumericType"
+												minOccurs="1" />
+									<xs:element name="DocumentSectionCode" type="ds:PointerDocumentSectionCodeType"
+												minOccurs="1" />
+									<xs:element name="TagID" type="ds:PointerTagIDType"
+												minOccurs="1" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GoodsShipment" minOccurs="0" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Consignment" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="GoodsLocation" minOccurs="1"
+												maxOccurs="1">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="Name" type="ds:GoodsLocationNameTextType"
+															minOccurs="0" />
+												<xs:element name="ID"
+															type="ds:GoodsLocationIdentificationIDType" minOccurs="0" />
+												<xs:element name="TypeCode" type="ds:GoodsLocationTypeCodeType"
+															minOccurs="0" />
+												<xs:element name="Address" minOccurs="0"
+															maxOccurs="1">
+													<xs:complexType>
+														<xs:sequence>
+															<xs:element name="TypeCode" type="ds:AddressTypeCodeType"
+																		minOccurs="0" />
+															<xs:element name="CityName" type="ds:AddressCityNameTextType"
+																		minOccurs="0" />
+															<xs:element name="CountryCode" type="ds:AddressCountryCodeType"
+																		minOccurs="0" />
+															<xs:element name="Line" type="ds:AddressLineTextType"
+																		minOccurs="0" />
+															<xs:element name="PostcodeID" type="ds:AddressPostcodeIDType"
+																		minOccurs="0" />
+														</xs:sequence>
+													</xs:complexType>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="BorderTransportMeans" minOccurs="1"
+						maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="RegistrationNationalityCode"
+									type="ds:BorderTransportMeansRegistrationNationalityCodeType"
+									minOccurs="1" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
