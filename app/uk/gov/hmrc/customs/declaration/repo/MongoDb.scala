@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.customs.declaration.controllers
+package uk.gov.hmrc.customs.declaration.repo
 
-object CustomHeaderNames {
-  val XConversationIdHeaderName: String = "X-Conversation-ID"
-  val XCorrelationIdHeaderName: String = "X-Correlation-ID"
-  val XClientIdHeaderName = "X-Client-ID"
-  val XBadgeIdentifierHeaderName: String = "X-Badge-Identifier"
-  val NonRepudiationReceiptId: String = "X-Receipt-ID"
-  val Authorization = "Authorization"
-  val XEoriIdentifierHeaderName = "X-EORI-Identifier"
+import com.google.inject.{ImplementedBy, Inject}
+import javax.inject.Singleton
+import play.modules.reactivemongo.ReactiveMongoComponent
+import reactivemongo.api.DB
+
+@ImplementedBy(classOf[MongoDb])
+trait MongoDbProvider {
+  def mongo: () => DB
+}
+
+@Singleton
+class MongoDb @Inject()(reactiveMongoComponent: ReactiveMongoComponent)  extends MongoDbProvider {
+  override val mongo: () => DB = reactiveMongoComponent.mongoConnector.db
 }

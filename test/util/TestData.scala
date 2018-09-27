@@ -16,6 +16,7 @@
 
 package util
 
+import java.net.URL
 import java.util.UUID
 import java.util.UUID.fromString
 
@@ -40,6 +41,7 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHe
 import uk.gov.hmrc.customs.declaration.model.actionbuilders._
 import uk.gov.hmrc.customs.declaration.services.{UniqueIdsService, UuidService}
 import unit.logging.StubDeclarationsLogger
+import util.TestData.declarantEori
 
 import scala.xml.Elem
 
@@ -244,10 +246,15 @@ object TestData {
 
   val TestXmlPayload: Elem = <foo>bar</foo>
   val TestFakeRequest: FakeRequest[AnyContentAsXml] = FakeRequest().withXmlBody(TestXmlPayload).withHeaders(("Authorization", "bearer-token"))
+  val TestFakeRequestWithBadgeIdAndNoEori: FakeRequest[AnyContentAsXml] = FakeRequest().withXmlBody(TestXmlPayload).withHeaders(("Authorization", "bearer-token"), ("X-Badge-Identifier", badgeIdentifier.value))
+  val TestFakeRequestWithEoriAndNoBadgeId: FakeRequest[AnyContentAsXml] = FakeRequest().withXmlBody(TestXmlPayload).withHeaders(("Authorization", "bearer-token"), ("X-EORI-Identifier", declarantEori.value))
   val TestFakeRequestMultipleHeaderValues: FakeRequest[AnyContentAsXml] = FakeRequest().withXmlBody(TestXmlPayload).withHeaders(("Authorization", "bearer-token"), ("Accept", "ABC"), ("Accept", "DEF"))
 
   def testFakeRequestWithBadgeId(badgeIdString: String = badgeIdentifier.value): FakeRequest[AnyContentAsXml] =
     FakeRequest().withXmlBody(TestXmlPayload).withHeaders(RequestHeaders.X_BADGE_IDENTIFIER_NAME -> badgeIdString)
+
+  def testFakeRequestWithBadgeIdEoriPair(badgeIdString: String = badgeIdentifier.value, eoriString: String = declarantEori.value): FakeRequest[AnyContentAsXml] =
+    FakeRequest().withXmlBody(TestXmlPayload).withHeaders(RequestHeaders.X_BADGE_IDENTIFIER_NAME -> badgeIdString, RequestHeaders.X_EORI_IDENTIFIER_NAME -> eoriString)
 
   // For Status endpoint
   val TestConversationIdStatusRequest = AnalyticsValuesAndConversationIdRequest(conversationId, GoogleAnalyticsValues.DeclarationStatus, TestFakeRequest)
@@ -257,6 +264,8 @@ object TestData {
 
 
   val TestConversationIdRequest = AnalyticsValuesAndConversationIdRequest(conversationId, GoogleAnalyticsValues.Submit, TestFakeRequest)
+  val TestConversationIdRequestWithBadgeIdAndNoEori = AnalyticsValuesAndConversationIdRequest(conversationId, GoogleAnalyticsValues.Submit, TestFakeRequestWithBadgeIdAndNoEori)
+  val TestConversationIdRequestWithEoriAndNoBadgeId = AnalyticsValuesAndConversationIdRequest(conversationId, GoogleAnalyticsValues.Submit, TestFakeRequestWithEoriAndNoBadgeId)
   val TestConversationIdRequestWithGoogleAnalyticsEndpointDisabled = AnalyticsValuesAndConversationIdRequest(conversationId, GoogleAnalyticsValues.Amend, TestFakeRequest)
   val TestConversationIdRequestMultipleHeaderValues = AnalyticsValuesAndConversationIdRequest(conversationId, GoogleAnalyticsValues.Submit, TestFakeRequestMultipleHeaderValues)
   val TestExtractedHeaders = ExtractedHeadersImpl(VersionOne, ApiSubscriptionFieldsTestData.clientId)
@@ -266,10 +275,31 @@ object TestData {
   val TestValidatedHeadersRequestMultipleHeaderValues: ValidatedHeadersRequest[AnyContentAsXml] = TestConversationIdRequestMultipleHeaderValues.toValidatedHeadersRequest(TestExtractedHeaders)
   val TestCspAuthorisedRequest: AuthorisedRequest[AnyContentAsXml] = TestValidatedHeadersRequest.toCspAuthorisedRequest(badgeIdentifier, Some(cspRetrievalValues))
   val TestValidatedHeadersRequestNoBadge: ValidatedHeadersRequest[AnyContentAsXml] = TestConversationIdRequest.toValidatedHeadersRequest(TestExtractedHeaders)
+  val TestValidatedHeadersRequestWithBadgeIdAndNoEori: ValidatedHeadersRequest[AnyContentAsXml] = TestConversationIdRequestWithBadgeIdAndNoEori.toValidatedHeadersRequest(TestExtractedHeaders)
+  val TestValidatedHeadersRequestWithEoriAndNoBadgeId: ValidatedHeadersRequest[AnyContentAsXml] = TestConversationIdRequestWithEoriAndNoBadgeId.toValidatedHeadersRequest(TestExtractedHeaders)
   val TestCspValidatedPayloadRequest: ValidatedPayloadRequest[AnyContentAsXml] = TestValidatedHeadersRequest.toCspAuthorisedRequest(badgeIdentifier, Some(cspRetrievalValues)).toValidatedPayloadRequest(xmlBody = TestXmlPayload)
   val TestCspValidatedPayloadRequestWithGoogleAnalyticsEndpointDisabled: ValidatedPayloadRequest[AnyContentAsXml] = TestValidatedHeadersRequestWithGoogleAnalyticsEndpointDisabled.toCspAuthorisedRequest(badgeIdentifier, Some(cspRetrievalValues)).toValidatedPayloadRequest(xmlBody = TestXmlPayload)
   val TestCspValidatedPayloadRequestMultipleHeaderValues: ValidatedPayloadRequest[AnyContentAsXml] = TestValidatedHeadersRequestMultipleHeaderValues.toCspAuthorisedRequest(badgeIdentifier, Some(cspRetrievalValues)).toValidatedPayloadRequest(xmlBody = TestXmlPayload)
   val TestNonCspValidatedPayloadRequest: ValidatedPayloadRequest[AnyContentAsXml] = TestValidatedHeadersRequest.toNonCspAuthorisedRequest(declarantEori, Some(nonCspRetrievalValues)).toValidatedPayloadRequest(xmlBody = TestXmlPayload)
+
+  val BatchIdOne = BatchId(fromString("48400000-8cf0-11bd-b23e-10b96e4ef001"))
+  val BatchIdTwo = BatchId(fromString("48400000-8cf0-11bd-b23e-10b96e4ef002"))
+  val BatchIdThree = BatchId(fromString("48400000-8cf0-11bd-b23e-10b96e4ef003"))
+  val FileReferenceOne = FileReference(fromString("38400000-8ce0-11bd-b23e-10b96e4ef00f"))
+  val FileReferenceTwo = FileReference(fromString("38400000-8cf0-11bd-b23e-10b96e4ef00f"))
+  val BatchFileOne = BatchFile(reference = FileReferenceOne, name = "name1", mimeType = "application/xml", checksum = "checksum1",
+    location = new URL("https://a.b.com"), sequenceNumber = SequenceNumber(1), size = 1, documentType = DocumentationType("Document Type 1"))
+  val BatchFileTwo = BatchFile(reference = FileReferenceTwo, name = "name2", mimeType = "application/xml", checksum = "checksum2",
+    location = new URL("https://a.b.com"), sequenceNumber = SequenceNumber(2), size = 1, documentType = DocumentationType("Document Type 2"))
+  val BatchFileMetadataWithFileOne = BatchFileUploadMetadata(DeclarationId("1"), Eori("123"), csId = ApiSubscriptionFieldsTestData.subscriptionFieldsId, BatchIdOne, fileCount = 1, Seq(
+    BatchFileOne
+  ))
+  val BatchFileMetadataWithFileTwo = BatchFileUploadMetadata(DeclarationId("2"), Eori("123"), csId = ApiSubscriptionFieldsTestData.subscriptionFieldsId, BatchIdTwo, fileCount = 1, Seq(
+    BatchFileTwo
+  ))
+  val BatchFileMetadataWithFilesOneAndTwo = BatchFileUploadMetadata(DeclarationId("3"), Eori("123"), csId = ApiSubscriptionFieldsTestData.subscriptionFieldsId, BatchIdThree, fileCount = 1, Seq(
+    BatchFileOne, BatchFileTwo
+  ))
 
 }
 
@@ -288,6 +318,9 @@ object RequestHeaders {
   val X_CLIENT_ID_NAME = "X-Client-ID"
   val X_CLIENT_ID_HEADER: (String, String) = X_CLIENT_ID_NAME -> ApiSubscriptionFieldsTestData.xClientId
   val X_CLIENT_ID_HEADER_INVALID: (String, String) = X_CLIENT_ID_NAME -> "This is not a UUID"
+
+  val X_EORI_IDENTIFIER_NAME = "X-EORI-Identifier"
+  val X_EORI_IDENTIFIER_HEADER: (String, String) = X_EORI_IDENTIFIER_NAME -> declarantEori.value
 
   val CONTENT_TYPE_HEADER: (String, String) = CONTENT_TYPE -> MimeTypes.XML
   val CONTENT_TYPE_CHARSET_VALUE: String = s"${MimeTypes.XML}; charset=UTF-8"
