@@ -57,7 +57,7 @@ class ArrivalNotificationSchemaSpec extends UnitSpec with MockitoSugar with Befo
         await(xmlValidationService.validate(InvalidArrivalNotificationXML))
       }
 
-      caught.getMessage shouldBe "cvc-elt.1.a: Cannot find the declaration of element 'taggie'."
+      caught.getMessage shouldBe "cvc-complex-type.2.4.b: The content of element 'Declaration' is not complete. One of '{\"urn:wco:datamodel:WCO:DEC-DMS:2\":Amendment}' is expected."
 
       Option(caught.getException) shouldBe None
     }
@@ -70,18 +70,6 @@ class ArrivalNotificationSchemaSpec extends UnitSpec with MockitoSugar with Befo
     <Submitter>
       <ID>token</ID>
     </Submitter>
-    <!--1 or more repetitions:-->
-    <Amendment>
-      <!--1 or more repetitions:-->
-      <Pointer>
-        <SequenceNumeric>1000</SequenceNumeric>
-        <DocumentSectionCode>tok</DocumentSectionCode>
-        <TagID>toke</TagID>
-      </Pointer>
-    </Amendment>
-    <BorderTransportMeans>
-      <RegistrationNationalityCode>to</RegistrationNationalityCode>
-    </BorderTransportMeans>
   </Declaration>
 
 

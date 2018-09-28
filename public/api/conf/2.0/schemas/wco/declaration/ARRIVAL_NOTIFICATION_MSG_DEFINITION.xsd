@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns="urn:wco:datamodel:WCO:DEC-DMS:2" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ds="urn:wco:datamodel:WCO:Declaration_DS:DMS:2" targetNamespace="urn:wco:datamodel:WCO:DEC-DMS:2"
+	xmlns:ds="urn:wco:datamodel:WCO:Declaration_DS:DMS:2" xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:6"
+		   targetNamespace="urn:wco:datamodel:WCO:DEC-DMS:2"
 	elementFormDefault="qualified" version="2.3">
 	<xs:import namespace="urn:wco:datamodel:WCO:Declaration_DS:DMS:2"
 		schemaLocation="WCO_DS/WCO_DEC_DS_2_DMS.xsd" />
+	<xs:import namespace="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:6" schemaLocation="UNECE/UnqualifiedDataType_6_DMS.xsd"/>
+
 	<xs:element name="Declaration" type="Declaration">
 		<xs:annotation>
 			<xs:documentation xml:lang="EN">
@@ -24,11 +27,40 @@
 	<xs:complexType name="Declaration">
 		<xs:sequence>
 			<xs:element name="ID" type="ds:DeclarationIdentificationIDType" minOccurs="1" />
-			<xs:element name="TypeCode" type="ds:DeclarationTypeCodeType" minOccurs="1" />
-			<xs:element name="Submitter" minOccurs="0" maxOccurs="1">
+			<xs:element name="FunctionCode" minOccurs="1">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:restriction base="udt:CodeType">
+							<xs:maxLength value="2"/>
+							<xs:pattern value="([0-9])*"/>
+							<xs:enumeration value="9"/>
+							<xs:enumeration value="13"/>
+							<xs:enumeration value="14"/>
+						</xs:restriction>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Submitter">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="ID" type="ds:SubmitterIdentificationIDType" minOccurs="1">
+						<xs:element name="ID" type="ds:SubmitterIdentificationIDType" minOccurs="1" />
+						<xs:element name="Address" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="CityName" type="ds:AddressCityNameTextType"
+												minOccurs="0"/>
+									<xs:element name="CountryCode" type="ds:AddressCountryCodeType"
+												minOccurs="0" />
+									<xs:element name="CountrySubDivisionCode"
+												type="ds:AddressCountrySubDivisionCodeType" minOccurs="0" />
+									<xs:element name="CountrySubDivisionName"
+												type="ds:AddressCountrySubDivisionNameTextType" minOccurs="0" />
+									<xs:element name="Line" type="ds:AddressLineTextType"
+												minOccurs="0" />
+									<xs:element name="PostcodeID" type="ds:AddressPostcodeIDType"
+												minOccurs="0" />
+								</xs:sequence>
+							</xs:complexType>
 						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
@@ -51,14 +83,13 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="GoodsShipment" minOccurs="0" maxOccurs="1">
+			<xs:element name="GoodsShipment" minOccurs="1">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="Consignment" minOccurs="0" maxOccurs="1">
+						<xs:element name="Consignment" minOccurs="1">
 							<xs:complexType>
 								<xs:sequence>
-									<xs:element name="GoodsLocation" minOccurs="1"
-												maxOccurs="1">
+									<xs:element name="GoodsLocation" minOccurs="1">
 										<xs:complexType>
 											<xs:sequence>
 												<xs:element name="Name" type="ds:GoodsLocationNameTextType"
@@ -67,20 +98,19 @@
 															type="ds:GoodsLocationIdentificationIDType" minOccurs="0" />
 												<xs:element name="TypeCode" type="ds:GoodsLocationTypeCodeType"
 															minOccurs="0" />
-												<xs:element name="Address" minOccurs="0"
-															maxOccurs="1">
+												<xs:element name="Address" minOccurs="0"> <!-- TODO MC is it mandatory ? -->
 													<xs:complexType>
 														<xs:sequence>
 															<xs:element name="TypeCode" type="ds:AddressTypeCodeType"
-																		minOccurs="0" />
+																		minOccurs="1" />
 															<xs:element name="CityName" type="ds:AddressCityNameTextType"
-																		minOccurs="0" />
+																		minOccurs="1" />
 															<xs:element name="CountryCode" type="ds:AddressCountryCodeType"
-																		minOccurs="0" />
+																		minOccurs="1" />
 															<xs:element name="Line" type="ds:AddressLineTextType"
-																		minOccurs="0" />
+																		minOccurs="1" />
 															<xs:element name="PostcodeID" type="ds:AddressPostcodeIDType"
-																		minOccurs="0" />
+																		minOccurs="1" />
 														</xs:sequence>
 													</xs:complexType>
 												</xs:element>
@@ -93,13 +123,24 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="BorderTransportMeans" minOccurs="1"
+			<xs:element name="BorderTransportMeans" minOccurs="0"
 						maxOccurs="1">
 				<xs:complexType>
 					<xs:sequence>
+						<xs:element name="Name" type="ds:BorderTransportMeansNameTextType" minOccurs="0" />
+						<xs:element name="ID" type="ds:BorderTransportMeansIdentificationIDType" minOccurs="0" />
+						<xs:element name="IdentificationTypeCode"
+									type="ds:BorderTransportMeansIdentificationTypeCodeType"
+									minOccurs="0" />
+						<xs:element name="TypeCode" type="ds:BorderTransportMeansTypeCodeType"
+									minOccurs="0" />
 						<xs:element name="RegistrationNationalityCode"
 									type="ds:BorderTransportMeansRegistrationNationalityCodeType"
-									minOccurs="1" />
+									minOccurs="1">
+						</xs:element>
+						<xs:element name="ModeCode" type="ds:BorderTransportMeansModeCodeType"
+									minOccurs="0">
+						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
