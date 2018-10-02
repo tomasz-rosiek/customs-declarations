@@ -16,30 +16,47 @@
 
 package unit.model
 
+import java.net.URL
+import java.util.UUID
+
 import play.api.libs.json.{JsSuccess, Json}
+import uk.gov.hmrc.customs.declaration.model.FileTransmissionRequest.{defaultCallbackUrl, defaultDeliveryWindowDurationInSeconds, defaultInterface}
 import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.play.test.UnitSpec
+import util.ApiSubscriptionFieldsTestData
 
 class FileTransmissionRequestSpec extends UnitSpec {
-  private val jsonString = """{
+
+  private val batchIdUuid = UUID.randomUUID()
+
+  private val fileReferenceUuid = UUID.randomUUID()
+
+  private val fileName = "someFileN.ame"
+  private val mimeType = "application/pdf"
+
+  private val fileChecksum = "asdrfgvbhujk13579"
+
+  private val fileLocation = "https://file-outbound-zxcvbnmkjhgfdertyuijhgt.aws.amazon.com"
+
+  private val jsonString = s"""{
                              |	"batch": {
-                             |		"id": "fghij67890",
+                             |		"id": "${batchIdUuid.toString}",
                              |		"fileCount": 10
                              |	},
-                             |	"callbackUrl": "https://file-transmission-callback-listener.public.mdtp/file-transmission-callback-listener/listen",
+                             |	"callbackUrl": "$defaultCallbackUrl",
                              |	"deliveryWindowDurationInSeconds": 300,
                              |	"file": {
-                             |		"reference": "abcde12345",
-                             |		"name": "someFileN.ame",
-                             |		"mimeType": "application/pdf",
-                             |		"checksum": "asdrfgvbhujk13579",
-                             |		"location": "https://file-outbound-asderfvghyujk1357690.aws.amazon.com",
+                             |		"reference": "${fileReferenceUuid.toString}",
+                             |		"name": "$fileName",
+                             |		"mimeType": "$mimeType",
+                             |		"checksum": "$fileChecksum",
+                             |		"location": "$fileLocation",
                              |		"sequenceNumber": 3,
                              |		"size": 1024
                              |	},
                              |	"interface":{
-                             |		"name": "interfaceName name",
-                             |		"version": "1.0"
+                             |		"name": "${defaultInterface.name}",
+                             |		"version": "${defaultInterface.version}"
                              |	},
                              |	"properties":[
                              |		{
@@ -58,15 +75,36 @@ class FileTransmissionRequestSpec extends UnitSpec {
 
   private val fileCount = 10
 
-  private val deliveryWindowDurationInSeconds = 300
-
   private val sequenceNumberValue = 3
 
   private val fileSize = 1024
 
-  private val fileTransmissionRequest = FileTransmissionRequest(Batch("fghij67890",fileCount),
-    "https://file-transmission-callback-listener.public.mdtp/file-transmission-callback-listener/listen", deliveryWindowDurationInSeconds,
-    File("abcde12345", "someFileN.ame", "application/pdf", "asdrfgvbhujk13579", "https://file-outbound-asderfvghyujk1357690.aws.amazon.com",SequenceNumber(sequenceNumberValue), fileSize), Interface("interfaceName name", "1.0"), Seq(Property("property1", "value1"), Property("property2", "value2")))
+  /*
+    val BatchFileOne = BatchFile(reference = FileReferenceOne, Some(CallbackFieldsOne),
+    location = new URL("https://a.b.com"), sequenceNumber = SequenceNumber(1), size = 1, documentType = DocumentType("Document Type 1"))
+
+
+    val BatchFileMetadataWithFileOne = BatchFileUploadMetadata(DeclarationId("1"), Eori("123"), csId = ApiSubscriptionFieldsTestData.subscriptionFieldsId, BatchIdOne, fileCount = 1, Seq(
+    BatchFileOne
+  ))
+
+  */
+
+
+
+  private val batch = Batch(batchIdUuid.toString, fileCount)
+
+
+
+  private val fileTransmissionRequest = FileTransmissionRequest(batch,
+    defaultCallbackUrl, defaultDeliveryWindowDurationInSeconds,
+    File(fileReferenceUuid.toString, fileName, mimeType, fileChecksum, new URL(fileLocation),SequenceNumber(sequenceNumberValue), fileSize), defaultInterface, Seq(Property("property1", "value1"), Property("property2", "value2")))
+
+  private val callbackFields = CallbackFields(fileName, mimeType, fileChecksum)
+
+  private val batchFile = BatchFile(FileReference(fileReferenceUuid), Option(callbackFields), new URL(fileLocation), SequenceNumber(sequenceNumberValue), fileSize, DocumentType("some document type"))
+
+  private val batchFileUploadMetadata = BatchFileUploadMetadata(DeclarationId("someId"), Eori("someEori"), ApiSubscriptionFieldsTestData.subscriptionFieldsId, BatchId(batchIdUuid), fileCount, Seq(batchFile))
 
   "FileTransmissionRequest model" should {
     "serialise to Json" in {
@@ -82,6 +120,26 @@ class FileTransmissionRequestSpec extends UnitSpec {
 
       actualFileTransmissionRequest shouldBe fileTransmissionRequest
     }
+
+    "be created from BatchFile instance" in {
+      val batchId = batchFileUploadMetadata.batchId
+      val fileCount = batchFileUploadMetadata.fileCount
+      val ftr = FileTransmissionRequest.fromBatchFile(batchFile, batchId, fileCount)
+
+      val expectedFTR = fileTransmissionRequest.copy(properties = Seq.empty)
+
+      ftr shouldBe expectedFTR
+    }
+
+    "throw an exception when no callback data is provided" in {
+      val batchId = batchFileUploadMetadata.batchId
+      val fileCount = batchFileUploadMetadata.fileCount
+      val caught = intercept[RuntimeException]{
+        FileTransmissionRequest.fromBatchFile(batchFile.copy(maybeCallbackFields = None), batchId, fileCount)
+      }
+      caught.getMessage shouldBe "bad things happen when the object is not complete"
+    }
+
   }
 
 }
