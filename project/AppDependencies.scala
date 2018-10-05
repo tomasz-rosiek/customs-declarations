@@ -35,5 +35,9 @@ object AppDependencies {
   val playReactiveMongo = "uk.gov.hmrc" %% "play-reactivemongo" % playReactivemongoVersion
 
   val reactiveMongoTest = "uk.gov.hmrc" %% "reactivemongo-test" % reactivemongoTestVersion % testScope
+  
+  val workItemRepo = "uk.gov.hmrc" %% "work-item-repo" % "5.2.0"
+  
+  val cats = "org.typelevel" %% "cats-core" % "1.0.1" //TODO MC remove and translate code to scalaz
 
 }

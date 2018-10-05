@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.customs.declaration.controllers
 
+import java.net.URL
 import java.util.UUID
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc._
 import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders._
-import uk.gov.hmrc.customs.declaration.model.ConversationId
+import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.{HasConversationId, ValidatedUploadPayloadRequest}
 import uk.gov.hmrc.customs.declaration.services.FileUploadBusinessService
@@ -75,4 +76,39 @@ class FileUploadController @Inject()(
             errorResult
         }
     }
+
+  def dummy(): Action[AnyContent] = Action {
+
+    // TODO MC composed actions ^^^^^^
+
+    val fileSubscriptionFieldsIdUuid = UUID.randomUUID()
+    val batchIdUuid = UUID.randomUUID()
+
+    val fileReferenceUuid = UUID.randomUUID()
+
+    val fileCount = 10
+
+    val sequenceNumberValue = 3
+
+    val fileSize = 1024
+
+    val batch = Batch(batchIdUuid.toString, fileCount)
+
+    val fileLocation = "https://file-outbound-zxcvbnmkjhgfdertyuijhgt.aws.amazon.com"
+
+    val fileName = "someFileN.ame"
+
+    val mimeType = "application/pdf"
+
+    val fileChecksum = "asdrfgvbhujk13579"
+
+    val callbackFields = CallbackFields(fileName, mimeType, fileChecksum)
+
+    val batchFile = BatchFile(FileReference(fileReferenceUuid), Option(callbackFields), new URL(fileLocation), SequenceNumber(sequenceNumberValue), fileSize, DocumentType("some document type"))
+
+    val batchFileUploadMetadata = BatchFileUploadMetadata(DeclarationId("someId"), Eori("someEori"), SubscriptionFieldsId(fileSubscriptionFieldsIdUuid), BatchId(batchIdUuid), fileCount, Seq(batchFile))
+
+
+    Ok("")
+  }
 }

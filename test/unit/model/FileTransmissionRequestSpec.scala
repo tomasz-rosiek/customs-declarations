@@ -79,19 +79,6 @@ class FileTransmissionRequestSpec extends UnitSpec {
 
   private val fileSize = 1024
 
-  /*
-    val BatchFileOne = BatchFile(reference = FileReferenceOne, Some(CallbackFieldsOne),
-    location = new URL("https://a.b.com"), sequenceNumber = SequenceNumber(1), size = 1, documentType = DocumentType("Document Type 1"))
-
-
-    val BatchFileMetadataWithFileOne = BatchFileUploadMetadata(DeclarationId("1"), Eori("123"), csId = ApiSubscriptionFieldsTestData.subscriptionFieldsId, BatchIdOne, fileCount = 1, Seq(
-    BatchFileOne
-  ))
-
-  */
-
-
-
   private val batch = Batch(batchIdUuid.toString, fileCount)
 
 
