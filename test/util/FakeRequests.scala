@@ -159,6 +159,14 @@ object FakeRequests {
     .withHeaders(ValidHeadersV2.toSeq: _*)
     .withXmlBody(InvalidFileUploadXml)
 
+  lazy val ValidBatchFileUploadV2Request = FakeRequest()
+    .withHeaders(ValidHeadersV2.toSeq: _*)
+    .withXmlBody(validBatchFileUploadXml())
+
+  lazy val ValidBatchFileUploadV3Request = FakeRequest()
+    .withHeaders(ValidHeadersV3.toSeq: _*)
+    .withXmlBody(validBatchFileUploadXml())
+
   lazy val NoAcceptHeaderFileUploadRequest: FakeRequest[AnyContentAsXml] = ValidFileUploadV2Request
     .copyFakeRequest(headers = InvalidSubmissionRequest.headers.remove(ACCEPT))
 
