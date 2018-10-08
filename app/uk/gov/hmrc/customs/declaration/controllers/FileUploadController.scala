@@ -92,7 +92,7 @@ class FileUploadController @Inject()(
 
     val fileSize = 1024
 
-    val batch = Batch(batchIdUuid.toString, fileCount)
+    val batch = FileTransmissionBatch(BatchId(batchIdUuid), fileCount)
 
     val fileLocation = "https://file-outbound-zxcvbnmkjhgfdertyuijhgt.aws.amazon.com"
 
@@ -104,7 +104,7 @@ class FileUploadController @Inject()(
 
     val callbackFields = CallbackFields(fileName, mimeType, fileChecksum)
 
-    val batchFile = BatchFile(FileReference(fileReferenceUuid), Option(callbackFields), new URL(fileLocation), SequenceNumber(sequenceNumberValue), fileSize, DocumentType("some document type"))
+    val batchFile = BatchFile(FileReference(fileReferenceUuid), Option(callbackFields), new URL(fileLocation), FileSequenceNo(sequenceNumberValue), fileSize, DocumentType("some document type"))
 
     val batchFileUploadMetadata = BatchFileUploadMetadata(DeclarationId("someId"), Eori("someEori"), SubscriptionFieldsId(fileSubscriptionFieldsIdUuid), BatchId(batchIdUuid), fileCount, Seq(batchFile))
 
