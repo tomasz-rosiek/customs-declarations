@@ -24,7 +24,7 @@ import reactivemongo.bson.BSONObjectID
 import reactivemongo.play.json.JsObjectDocumentWriter
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.HasConversationId
-import uk.gov.hmrc.customs.declaration.model.{BatchFileUploadMetadata, FileReference}
+import uk.gov.hmrc.customs.declaration.model.{BatchFileUploadMetadata, CallbackFields, FileReference}
 import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -38,6 +38,8 @@ trait BatchFileUploadMetadataRepo {
   def fetch(reference: FileReference)(implicit r: HasConversationId): Future[Option[BatchFileUploadMetadata]]
 
   def delete(clientNotification: BatchFileUploadMetadata)(implicit r: HasConversationId): Future[Unit]
+
+  def update(reference: FileReference, callbackFields: CallbackFields)(implicit r: HasConversationId): Future[Option[BatchFileUploadMetadata]]
 }
 
 @Singleton
@@ -45,7 +47,7 @@ class BatchFileUploadMetadataMongoRepo @Inject()(mongoDbProvider: MongoDbProvide
                                                  errorHandler: BatchFileUploadMetadataRepoErrorHandler,
                                                  logger: DeclarationsLogger)
   extends ReactiveRepository[BatchFileUploadMetadata, BSONObjectID](
-    collectionName = "fileUploadMetadata",
+    collectionName = "batchFileUploads",
     mongo = mongoDbProvider.mongo,
     domainFormat = BatchFileUploadMetadata.batchFileUploadMetadataJF
   ) with BatchFileUploadMetadataRepo {
@@ -67,7 +69,6 @@ class BatchFileUploadMetadataMongoRepo @Inject()(mongoDbProvider: MongoDbProvide
 
   override def create(batchFileUploadMetadata: BatchFileUploadMetadata)(implicit r: HasConversationId): Future[Boolean] = {
     logger.debug(s"saving batchFileUploadMetadata: $batchFileUploadMetadata")
-
     lazy val errorMsg = s"Batch file meta data not inserted for $batchFileUploadMetadata"
 
     collection.insert(batchFileUploadMetadata).map {
@@ -89,4 +90,26 @@ class BatchFileUploadMetadataMongoRepo @Inject()(mongoDbProvider: MongoDbProvide
     lazy val errorMsg = s"Could not delete entity for selector: $selector"
     collection.remove(selector).map(errorHandler.handleDeleteError(_, errorMsg))
   }
+
+  def update(reference: FileReference, cf: CallbackFields)(implicit r: HasConversationId): Future[Option[BatchFileUploadMetadata]] = {
+    logger.debug(s"updating batch file upload metatdata with file reference: $reference with callbackField=$cf")
+
+    val selector = Json.obj("files.reference" -> reference.toString)
+    val update = Json.obj("$set" -> Json.obj("files.$.maybeCallbackFields" -> Json.obj("name" -> cf.name, "mimeType" -> cf.mimeType, "checksum" -> cf.checksum)))
+
+    val updateOp = collection.updateModifier(
+      update = update,
+      fetchNewObject = true,
+      upsert = false
+    )
+
+    collection.findAndModify(selector, updateOp).map(findAndModifyResult =>
+      findAndModifyResult.value match {
+        case None => None
+        case Some(jsonDoc) =>
+          val record = jsonDoc.as[BatchFileUploadMetadata]
+          Some(record)
+      })
+  }
+
 }
