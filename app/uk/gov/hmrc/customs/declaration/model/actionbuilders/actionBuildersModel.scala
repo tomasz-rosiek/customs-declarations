@@ -20,6 +20,7 @@ import play.api.mvc.{Request, Result, WrappedRequest}
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames._
 import uk.gov.hmrc.customs.declaration.model.{AuthorisedAs, _}
 
+import scala.concurrent.duration.FiniteDuration
 import scala.xml.NodeSeq
 
 object ActionBuilderModelHelper {
@@ -153,7 +154,38 @@ trait HasFileUploadProperties {
   val documentationType: DocumentationType
 }
 
+case class Whatever(deliveryWindowDuration: Option[FiniteDuration])
+
+
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{Format, JsPath, Json}
+
+import scala.concurrent.duration._
+
 case class BatchFileUploadRequest(declarationId: DeclarationId, fileGroupSize: FileGroupSize, files: Seq[BatchFileUploadFile])
+
+object BatchFileUploadRequest {
+
+  implicit val fmt = Json.format[BatchFileUploadRequest]
+}
+
+object Whatever {
+  val timeInSecondsFormat: Format[FiniteDuration] = implicitly[Format[Int]].inmap(_ seconds, _.toSeconds.toInt)
+
+  implicit val finiteDurationFmt: Format[FiniteDuration] = (
+      (JsPath \ "deliveryWindowDurationInSeconds").format(
+        timeInSecondsFormat)
+    )
+  implicit val fmt = Json.format[Whatever]
+
+
+} //TODO MC extend and change that
+
+case class BatchFileUploadRequestEnvelope(request: BatchFileUploadRequest, whatever: Whatever)
+
+object BatchFileUploadRequestEnvelope {
+  implicit val fmt = Json.format[BatchFileUploadRequestEnvelope]
+}
 
 case class BatchFileUploadFile(fileSequenceNo: FileSequenceNo, documentType: DocumentType) {
 
@@ -167,6 +199,10 @@ case class BatchFileUploadFile(fileSequenceNo: FileSequenceNo, documentType: Doc
   override def hashCode: Int = {
     fileSequenceNo.value
   }
+}
+
+object BatchFileUploadFile {
+  implicit val fmt = Json.format[BatchFileUploadFile]
 }
 
 trait HasBatchFileUploadProperties {

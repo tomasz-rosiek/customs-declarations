@@ -19,41 +19,38 @@ package uk.gov.hmrc.customs.declaration.services.filetransmission.queue
 import java.time.Clock
 
 import cats.data.OptionT
+import cats.implicits._
 import javax.inject.Inject
 import org.joda.time.{DateTime, Duration}
-import uk.gov.hmrc.customs.declaration.model.BatchFileUploadMetadata
-import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
-import uk.gov.hmrc.workitem._
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.BatchFileUploadRequestEnvelope
 import uk.gov.hmrc.customs.declaration.services.filetransmission.util.JodaTimeConverters._
+import uk.gov.hmrc.workitem._
 
 import scala.concurrent.{ExecutionContext, Future}
-import cats.data.OptionT
-import cats.implicits._
-import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
+
 sealed trait ProcessingResult
 case object ProcessingSuccessful extends ProcessingResult
 case class ProcessingFailed(error: Throwable) extends ProcessingResult
 case class ProcessingFailedDoNotRetry(error: Throwable) extends ProcessingResult
 
 trait QueueJob {
-  def process(item: BatchFileUploadMetadata,
+  def process(item: BatchFileUploadRequestEnvelope,
               canRetry: Boolean): Future[ProcessingResult]
 }
 
 trait WorkItemService {
-  def enqueue(request: BatchFileUploadMetadata): Future[Unit]
+  def enqueue(request: BatchFileUploadRequestEnvelope): Future[Unit]
 
   def processOne(): Future[Boolean]
 }
 
-class MongoBackedWorkItemService @Inject()( logger: DeclarationsLogger,
-                                            repository: TransmissionRequestWorkItemRepository,
-                                            queueJob: QueueJob,
-                                            configuration: DeclarationsConfigService,
-                                            clock: Clock)(implicit ec: ExecutionContext)
-  extends WorkItemService {
+class MongoBackedWorkItemService @Inject()(
+    repository: TransmissionRequestWorkItemRepository,
+    queueJob: QueueJob,
+    clock: Clock)(implicit ec: ExecutionContext)
+    extends WorkItemService {
 
-  def enqueue(request: BatchFileUploadMetadata): Future[Unit] =
+  def enqueue(request: BatchFileUploadRequestEnvelope): Future[Unit] =
     repository.pushNew(request, now()).map(_ => ())
 
   def processOne(): Future[Boolean] = {
@@ -73,7 +70,7 @@ class MongoBackedWorkItemService @Inject()( logger: DeclarationsLogger,
   }
 
   private def processWorkItem(
-                               workItem: WorkItem[BatchFileUploadMetadata]): Future[Unit] = {
+      workItem: WorkItem[BatchFileUploadRequestEnvelope]): Future[Unit] = {
     val request = workItem.item
 
     val nextRetryTime: DateTime = nextAvailabilityTime(workItem)
@@ -103,7 +100,7 @@ class MongoBackedWorkItemService @Inject()( logger: DeclarationsLogger,
   }
 
   private def timeToGiveUp(
-                            workItem: WorkItem[BatchFileUploadMetadata]): DateTime = {
+      workItem: WorkItem[BatchFileUploadRequestEnvelope]): DateTime = {
 
     val deliveryWindowDuration = Duration.standardHours(4) //TODO MC hardcoded
 //      workItem.item.request.deliveryWindowDuration

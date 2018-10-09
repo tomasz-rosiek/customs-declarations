@@ -25,21 +25,19 @@ import play.api.libs.json.{Format, Reads, __}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
 import reactivemongo.play.json.ImplicitBSONHandlers._
-import uk.gov.hmrc.customs.declaration.model.BatchFileUploadMetadata
-import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
-import uk.gov.hmrc.workitem.{ProcessingStatus, WorkItem, WorkItemFieldNames, WorkItemRepository}
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.BatchFileUploadRequestEnvelope
 import uk.gov.hmrc.customs.declaration.services.filetransmission.util.JodaTimeConverters._
+import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
+import uk.gov.hmrc.workitem.{WorkItem, _}
 
 class TransmissionRequestWorkItemRepository @Inject()(
     mongoComponent: ReactiveMongoComponent,
-    configuration: DeclarationsConfigService,
     clock: Clock)
-    extends WorkItemRepository[BatchFileUploadMetadata, BSONObjectID](
+    extends WorkItemRepository[BatchFileUploadRequestEnvelope, BSONObjectID](
       collectionName = "transmission-request",
       mongo = mongoComponent.mongoConnector.db,
       itemFormat =
-        WorkItemFormat.workItemMongoFormat[BatchFileUploadMetadata]
+        WorkItemFormat.workItemMongoFormat[BatchFileUploadRequestEnvelope]
     ) {
 
   override def now: DateTime = clock.nowAsJoda
@@ -50,7 +48,7 @@ class TransmissionRequestWorkItemRepository @Inject()(
   override lazy val inProgressRetryAfter: Duration =
     Duration.standardMinutes(5) //TODO MC hardcoded
 
-  override def workItemFields: WorkItemFieldNames = new WorkItemFieldNames {
+  override def workItemFields = new WorkItemFieldNames {
     val receivedAt = "modifiedDetails.createdAt"
     val updatedAt = "modifiedDetails.lastUpdated"
     val availableAt = "modifiedDetails.availableAt"
@@ -76,17 +74,17 @@ object WorkItemFormat {
         (__ \ "modifiedDetails" \ "createdAt").read[DateTime] and
         (__ \ "modifiedDetails" \ "lastUpdated").read[DateTime] and
         (__ \ "modifiedDetails" \ "availableAt").read[DateTime] and
-        (__ \ "status").read[ProcessingStatus] and
+        (__ \ "status").read[uk.gov.hmrc.workitem.ProcessingStatus] and
         (__ \ "failures").read[Int].orElse(Reads.pure(0)) and
         (__ \ "body").read[T]
-    )(WorkItem.apply[T](_,_,_,_,_,_,_))
+    )(WorkItem.apply[T](_, _, _, _, _, _, _))
 
     val writes = (
       (__ \ "id").write[BSONObjectID] and
         (__ \ "modifiedDetails" \ "createdAt").write[DateTime] and
         (__ \ "modifiedDetails" \ "lastUpdated").write[DateTime] and
         (__ \ "modifiedDetails" \ "availableAt").write[DateTime] and
-        (__ \ "status").write[ProcessingStatus] and
+        (__ \ "status").write[uk.gov.hmrc.workitem.ProcessingStatus] and
         (__ \ "failures").write[Int] and
         (__ \ "body").write[T]
     )(unlift(WorkItem.unapply[T]))

@@ -64,7 +64,7 @@ class WorkItemProcessingScheduler @Inject()(queueProcessor: WorkItemService, con
 
   pollingActor ! Poll
 
-  def shutDown() =
+  def shutDown(): Unit =
     pollingActor ! PoisonPill
 
   applicationLifecycle.addStopHook { () =>
