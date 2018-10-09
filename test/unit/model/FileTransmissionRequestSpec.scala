@@ -36,6 +36,7 @@
 //import java.util.UUID
 //
 //import play.api.libs.json.{JsSuccess, Json}
+//import uk.gov.hmrc.customs.declaration.model.FileTransmissionRequest.{defaultCallbackUrl, defaultDeliveryWindowDurationInSeconds, defaultInterface}
 //import uk.gov.hmrc.customs.declaration.model._
 //import uk.gov.hmrc.play.test.UnitSpec
 //import util.ApiSubscriptionFieldsTestData
@@ -54,37 +55,37 @@
 //  private val fileLocation = "https://file-outbound-zxcvbnmkjhgfdertyuijhgt.aws.amazon.com"
 //
 //  private val jsonString = s"""{
-//                             |	"batch": {
-//                             |		"id": "${batchIdUuid.toString}",
-//                             |		"fileCount": 10
-//                             |	},
-//                             |	"callbackUrl": "$defaultCallbackUrl",
-//                             |	"deliveryWindowDurationInSeconds": 300,
-//                             |	"file": {
-//                             |		"reference": "${fileReferenceUuid.toString}",
-//                             |		"name": "$fileName",
-//                             |		"mimeType": "$mimeType",
-//                             |		"checksum": "$fileChecksum",
-//                             |		"location": "$fileLocation",
-//                             |		"sequenceNumber": 3,
-//                             |		"size": 1024
-//                             |	},
-//                             |	"interface":{
-//                             |		"name": "${defaultInterface.name}",
-//                             |		"version": "${defaultInterface.version}"
-//                             |	},
-//                             |	"properties":[
-//                             |		{
-//                             |			"name": "property1",
-//                             |			"value": "value1"
-//                             |		},
-//                             |		{
-//                             |			"name": "property2",
-//                             |			"value": "value2"
-//                             |		}
-//                             |	]
-//                             |}
-//                             |""".stripMargin
+//                              |	"batch": {
+//                              |		"id": "${batchIdUuid.toString}",
+//                              |		"fileCount": 10
+//                              |	},
+//                              |	"callbackUrl": "$defaultCallbackUrl",
+//                              |	"deliveryWindowDurationInSeconds": 300,
+//                              |	"file": {
+//                              |		"reference": "${fileReferenceUuid.toString}",
+//                              |		"name": "$fileName",
+//                              |		"mimeType": "$mimeType",
+//                              |		"checksum": "$fileChecksum",
+//                              |		"location": "$fileLocation",
+//                              |		"sequenceNumber": 3,
+//                              |		"size": 1024
+//                              |	},
+//                              |	"interface":{
+//                              |		"name": "${defaultInterface.name}",
+//                              |		"version": "${defaultInterface.version}"
+//                              |	},
+//                              |	"properties":[
+//                              |		{
+//                              |			"name": "property1",
+//                              |			"value": "value1"
+//                              |		},
+//                              |		{
+//                              |			"name": "property2",
+//                              |			"value": "value2"
+//                              |		}
+//                              |	]
+//                              |}
+//                              |""".stripMargin
 //
 //  private val json = Json.parse(jsonString)
 //
