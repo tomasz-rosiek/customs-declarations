@@ -25,7 +25,7 @@ import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders._
 import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.{HasConversationId, ValidatedUploadPayloadRequest}
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.{FileSequenceNo, HasConversationId, ValidatedUploadPayloadRequest}
 import uk.gov.hmrc.customs.declaration.services.FileUploadBusinessService
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 

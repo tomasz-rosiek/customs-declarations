@@ -19,6 +19,7 @@ package uk.gov.hmrc.customs.declaration.model
 import java.net.URL
 
 import play.api.libs.json._
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileSequenceNo
 
 case class FileTransmissionBatch(
   id: BatchId,

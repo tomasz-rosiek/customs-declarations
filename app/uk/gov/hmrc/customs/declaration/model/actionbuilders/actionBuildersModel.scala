@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.customs.declaration.model.actionbuilders
 
+import play.api.libs.json.{JsNumber, Reads, Writes}
 import play.api.mvc.{Request, Result, WrappedRequest}
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames._
 import uk.gov.hmrc.customs.declaration.model.{AuthorisedAs, _}
@@ -161,6 +162,31 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, JsPath, Json}
 
 import scala.concurrent.duration._
+
+case class FileSequenceNo(value: Int) extends AnyVal{
+  override def toString: String = value.toString
+}
+object FileSequenceNo {
+  implicit val writer = Writes[FileSequenceNo] { x =>
+    val d: BigDecimal = x.value
+    JsNumber(d)
+  }
+  implicit val reader = Reads.of[Int].map(new FileSequenceNo(_))
+}
+
+case class FileGroupSize(value: Int) extends AnyVal{
+  override def toString: String = value.toString
+}
+
+object FileGroupSize {
+  implicit val writer: Writes[FileGroupSize] = Writes[FileGroupSize] { x =>
+    val d: BigDecimal = x.value
+    JsNumber(d)
+  }
+  implicit val reader: Reads[FileGroupSize] = Reads.of[Int].map(new FileGroupSize(_))
+  implicit val fmt: Format[FileGroupSize] = Format.apply(reader, writer)
+
+}
 
 case class BatchFileUploadRequest(declarationId: DeclarationId, fileGroupSize: FileGroupSize, files: Seq[BatchFileUploadFile])
 

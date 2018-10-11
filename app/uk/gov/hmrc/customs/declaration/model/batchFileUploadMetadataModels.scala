@@ -21,6 +21,7 @@ import java.util.UUID
 
 import play.api.data.validation.ValidationError
 import play.api.libs.json._
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileSequenceNo
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 import scala.util.Try

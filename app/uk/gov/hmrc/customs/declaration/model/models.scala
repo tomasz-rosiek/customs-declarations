@@ -229,30 +229,6 @@ object DocumentationType {
   implicit val reader = Reads.of[String].map(new DocumentationType(_))
 }
 
-case class FileSequenceNo(value: Int) extends AnyVal{
-  override def toString: String = value.toString
-}
-object FileSequenceNo {
-  implicit val writer = Writes[FileSequenceNo] { x =>
-    val d: BigDecimal = x.value
-    JsNumber(d)
-  }
-  implicit val reader = Reads.of[Int].map(new FileSequenceNo(_))
-}
-
-case class FileGroupSize(value: Int) extends AnyVal{
-  override def toString: String = value.toString
-}
-
-object FileGroupSize {
-  implicit val writer = Writes[FileSequenceNo] { x =>
-    val d: BigDecimal = x.value
-    JsNumber(d)
-  }
-  implicit val reader = Reads.of[Int].map(new FileSequenceNo(_))
-
-}
-
 sealed trait ApiVersion {
   val value: String
   val configPrefix: String

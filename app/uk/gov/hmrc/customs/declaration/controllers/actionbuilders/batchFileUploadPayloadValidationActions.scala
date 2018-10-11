@@ -26,7 +26,7 @@ import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders._
-import uk.gov.hmrc.customs.declaration.model.{FileGroupSize, _}
+import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.services.{BatchFileUploadXmlValidationService, DeclarationsConfigService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
