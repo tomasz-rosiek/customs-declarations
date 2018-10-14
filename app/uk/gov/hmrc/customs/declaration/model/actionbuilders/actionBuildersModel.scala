@@ -208,7 +208,7 @@ object Whatever {
 
 } //TODO MC extend and change that
 
-case class FileTransmissionEnvelope(request: FileTransmission, apiVersion: String, whatever: Whatever)
+case class FileTransmissionEnvelope(request: FileTransmission, whatever: Whatever)
 
 object FileTransmissionEnvelope {
   implicit val fmt = Json.format[FileTransmissionEnvelope]

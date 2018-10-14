@@ -94,7 +94,8 @@ class MongoBackedWorkItemService @Inject()(
 
     val multiplier = Math.pow(2, workItem.failureCount).toInt
 
-    val delay = Duration.standardMinutes(1) * multiplier //TODO MC hardcoded
+//    val delay = Duration.standardSeconds(1) * multiplier //TODO MC hardcoded
+    val delay = Duration.standardSeconds(2) //TODO MC hardcoded
 
     now() + delay
   }

@@ -19,22 +19,22 @@ package uk.gov.hmrc.customs.declaration.services
 import java.net.URL
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.customs.declaration.connectors.FileTransmissionConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.HasConversationId
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.{FileTransmissionEnvelope, HasConversationId, Whatever}
 import uk.gov.hmrc.customs.declaration.repo.BatchFileUploadMetadataRepo
+import uk.gov.hmrc.customs.declaration.services.filetransmission.queue.WorkItemService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
 class BatchFileUploadUpscanNotificationBusinessService @Inject()(repo: BatchFileUploadMetadataRepo,
-                                                                 connector: FileTransmissionConnector,
+                                                                 workItemService: WorkItemService,
                                                                  config: DeclarationsConfigService,
                                                                  logger: DeclarationsLogger) {
 
-  def persistAndCallFileTransmission(ready: UploadedReadyCallbackBody)(implicit r: HasConversationId): Future[Unit] = {
+  def persistAndCallWorkItemService(ready: UploadedReadyCallbackBody)(implicit r: HasConversationId): Future[Unit] = {
     repo.update(
       ready.reference,
       CallbackFields(ready.uploadDetails.fileName, ready.uploadDetails.fileMimeType, ready.uploadDetails.checksum)
@@ -50,11 +50,21 @@ class BatchFileUploadUpscanNotificationBusinessService @Inject()(repo: BatchFile
             logger.error(errorMsg)
             Future.failed(new IllegalStateException(errorMsg))
           case Some(fileTransmission) =>
-            connector.send(fileTransmission).map { _ =>
-              logger.info(s"successfully called file transmission service $fileTransmission")
+            val envelope = FileTransmissionEnvelope(fileTransmission,Whatever(deliveryWindowDuration = None))
+            workItemService.enqueue(envelope).map { _ =>
+              logger.info(s"successfully called work item service $fileTransmission")
               ()
             }
       }
+    }
+  }
+
+  //TODO MC POC only, remove it later
+  def callWorkItemService(ftr: FileTransmission)(implicit r: HasConversationId): Future[Unit] = {
+    val envelope = FileTransmissionEnvelope(ftr, Whatever(deliveryWindowDuration = None))
+    workItemService.enqueue(envelope).map { _ =>
+      logger.info(s"successfully called work item service $ftr")
+      ()
     }
   }
 

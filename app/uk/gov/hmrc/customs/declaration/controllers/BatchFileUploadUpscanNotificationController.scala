@@ -51,7 +51,7 @@ class BatchFileUploadUpscanNotificationController @Inject()(notificationService:
             callbackBody match {
               case ready: UploadedReadyCallbackBody =>
                 cdsLogger.debug(s"Valid JSON request received with READY status. Body: $js headers: ${request.headers}")
-                businessService.persistAndCallFileTransmission(ready).map{_ =>
+                businessService.persistAndCallWorkItemService(ready).map{ _ =>
                     Results.NoContent
                 }.recover{
                   case e: Throwable =>
@@ -100,6 +100,47 @@ class BatchFileUploadUpscanNotificationController @Inject()(notificationService:
           cdsLogger.error(s"Error sending internal error notification. Body: ${request.body.asText} headers: ${request.headers}", e)
       }
     }
+  }
+
+  def dummy(): Action[AnyContent] = Action {
+
+    // TODO MC composed actions ^^^^^^
+
+    val fileTransmissionRequestJsonString = """{
+                                              |  "batch" : {
+                                              |    "id" : "48400000-8cf0-11bd-b23e-10b96e4ef001",
+                                              |    "fileCount" : 2
+                                              |  },
+                                              |  "callbackUrl" : "https:/foo.com/callback",
+                                              |  "file" : {
+                                              |    "reference" : "31400000-8ce0-11bd-b23e-10b96e4ef00f",
+                                              |    "name" : "someFileN.ame",
+                                              |    "mimeType" : "application/pdf",
+                                              |    "checkSum" : "asdrfgvbhujk13579",
+                                              |    "location" : "https:/foo.com/location",
+                                              |    "sequenceNumber" : 1,
+                                              |    "size" : 1
+                                              |  },
+                                              |  "interface" : {
+                                              |    "name" : "interfaceName name",
+                                              |    "version" : "1.0"
+                                              |  },
+                                              |  "properties" : [ {
+                                              |    "name" : "p1",
+                                              |    "value" : "v1"
+                                              |  }, {
+                                              |    "name" : "p2",
+                                              |    "value" : "v2"
+                                              |  } ]
+                                              |}""".stripMargin
+    val request = Json.parse(fileTransmissionRequestJsonString).as[FileTransmission]
+    val uuid: UUID = UUID.randomUUID()
+
+    val res = businessService.callWorkItemService(request)(new HasConversationId {
+      override val conversationId: ConversationId = ConversationId(uuid)
+    })
+
+    Ok(s" $uuid <br /> $request ").as("text/html")
   }
 
 }

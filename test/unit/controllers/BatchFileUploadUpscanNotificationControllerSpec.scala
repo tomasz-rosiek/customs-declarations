@@ -87,7 +87,7 @@ class BatchFileUploadUpscanNotificationControllerSpec extends PlaySpec with Mock
 
   "BatchFileUploadUpscanNotificationController on Happy Path" should {
     "on receipt of READY callback call business service and return 204 with empty body" in new Setup {
-      when(mockBusinessService.persistAndCallFileTransmission(ameq(ReadyCallbackBody))(any[HasConversationId])).thenReturn(Future.successful(()))
+      when(mockBusinessService.persistAndCallWorkItemService(ameq(ReadyCallbackBody))(any[HasConversationId])).thenReturn(Future.successful(()))
 
       private val result: Future[Result] = post(fakeRequestWith(readyJson()))
 
@@ -95,7 +95,7 @@ class BatchFileUploadUpscanNotificationControllerSpec extends PlaySpec with Mock
       contentAsString(result) mustBe empty
       eventually {
         verifyZeroInteractions(mockNotificationService)
-        verify(mockBusinessService).persistAndCallFileTransmission(ameq(ReadyCallbackBody))(any[HasConversationId])
+        verify(mockBusinessService).persistAndCallWorkItemService(ameq(ReadyCallbackBody))(any[HasConversationId])
         verifyZeroInteractions(mockErrorToXmlNotification)
       }
     }
@@ -131,7 +131,7 @@ class BatchFileUploadUpscanNotificationControllerSpec extends PlaySpec with Mock
     }
 
     "on receipt of READY callback return 500 with standard error message when business service throw an exception" in new Setup {
-      when(mockBusinessService.persistAndCallFileTransmission(ameq(ReadyCallbackBody))(any[HasConversationId]))
+      when(mockBusinessService.persistAndCallWorkItemService(ameq(ReadyCallbackBody))(any[HasConversationId]))
         .thenReturn(Future.failed(emulatedServiceFailure))
 
       private val result = post(fakeRequestWith(readyJson()))
@@ -139,7 +139,7 @@ class BatchFileUploadUpscanNotificationControllerSpec extends PlaySpec with Mock
       Helpers.status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) mustBe UpscanNotificationInternalServerErrorJson
       eventually {
-        verify(mockBusinessService).persistAndCallFileTransmission(ameq(ReadyCallbackBody))(any[HasConversationId])
+        verify(mockBusinessService).persistAndCallWorkItemService(ameq(ReadyCallbackBody))(any[HasConversationId])
         verifyErrorNotificationSent()
         verifyZeroInteractions(mockToXmlNotification)
       }
