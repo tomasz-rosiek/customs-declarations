@@ -26,13 +26,13 @@ import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders.AuthAction
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
-import uk.gov.hmrc.customs.declaration.model.{GoogleAnalyticsValues, NrsConfig}
+import uk.gov.hmrc.customs.declaration.model.GoogleAnalyticsValues
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.AnalyticsValuesAndConversationIdRequest
 import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
 import uk.gov.hmrc.play.test.UnitSpec
 import util.TestData._
-import util.{AuthConnectorNrsDisabledStubbing, AuthConnectorStubbing, RequestHeaders, TestData}
+import util.{AuthConnectorNrsDisabledStubbing, AuthConnectorStubbing, RequestHeaders}
 
 class AuthActionSpec extends UnitSpec with MockitoSugar {
 

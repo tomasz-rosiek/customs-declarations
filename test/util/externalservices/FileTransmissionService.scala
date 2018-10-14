@@ -23,6 +23,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.customs.declaration.model.FileTransmission
 import util.CustomsDeclarationsExternalServicesConfig._
 import util.WireMockRunner
+
 import scala.collection.JavaConverters._
 
 trait FileTransmissionService extends WireMockRunner {

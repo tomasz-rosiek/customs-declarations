@@ -23,7 +23,7 @@ import java.util.UUID
 import org.mockito.ArgumentMatchers.{any, eq => ameq}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.customs.declaration.connectors.FileTransmissionConnector
+import uk.gov.hmrc.customs.declaration.connectors.{FileTransmissionConnector, FileTransmissionRequestSuccessful}
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.HasConversationId
@@ -75,7 +75,7 @@ class BatchFileUploadUpscanNotificationBusinessServiceSpec extends UnitSpec with
   "BatchFileUploadUpscanNotificationBusinessService" should {
     "update metadata and call file transmission service" in new SetUp {
       when(mockRepo.update(FileReferenceOne, callbackFields)).thenReturn(Future.successful(Some(BatchFileMetadataWithFilesOneAndThree)))
-      when(mockConnector.send(any[FileTransmission])).thenReturn(Future.successful(()))
+      when(mockConnector.send(any[FileTransmission])).thenReturn(Future.successful(FileTransmissionRequestSuccessful))
 
       val actual = await(service.persistAndCallFileTransmission(readyCallbackBody))
 

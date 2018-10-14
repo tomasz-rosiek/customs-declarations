@@ -29,7 +29,7 @@ import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, NotFoundException}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData.{EmulatedServiceFailure, emulatedServiceFailure, ValidatedBatchFileUploadPayloadRequestForNonCspWithTwoFiles}
+import util.TestData.{EmulatedServiceFailure, ValidatedBatchFileUploadPayloadRequestForNonCspWithTwoFiles, emulatedServiceFailure}
 
 import scala.concurrent.{ExecutionContext, Future}
 

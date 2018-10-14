@@ -17,7 +17,7 @@
 package unit.services
 
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.{any, eq => ameq}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatest.Assertion
 import org.scalatest.mockito.MockitoSugar

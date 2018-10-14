@@ -19,7 +19,6 @@ package uk.gov.hmrc.customs.declaration.services.filetransmission
 import javax.inject.Inject
 import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors._
-import uk.gov.hmrc.customs.declaration.model.ApiVersion
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileTransmissionEnvelope
 import uk.gov.hmrc.customs.declaration.services.filetransmission.queue._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,10 +34,7 @@ class TransmissionRequestProcessingJob @Inject()(
                        canRetry: Boolean): Future[ProcessingResult] = {
     implicit val hc = HeaderCarrier()
 
-    for (result <- connector.send(item.request,new ApiVersion {
-      override val value: String = item.apiVersion
-      override val configPrefix: String = "dummy"
-    })) yield {
+    for (result <- connector.send(item.request)) yield {
       result match {
         case FileTransmissionRequestSuccessful =>
           logger.info(s"Request ${item.request} processed successfully")

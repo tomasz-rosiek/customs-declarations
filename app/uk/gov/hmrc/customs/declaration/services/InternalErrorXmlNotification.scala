@@ -17,7 +17,6 @@
 package uk.gov.hmrc.customs.declaration.services
 
 import javax.inject.Singleton
-
 import uk.gov.hmrc.customs.declaration.model.FileReference
 
 import scala.xml.NodeSeq

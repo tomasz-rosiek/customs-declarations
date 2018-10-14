@@ -17,16 +17,16 @@
 package uk.gov.hmrc.customs.declaration.services
 
 import java.net.URL
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.customs.declaration.connectors.FileTransmissionConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.HasConversationId
 import uk.gov.hmrc.customs.declaration.repo.BatchFileUploadMetadataRepo
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 @Singleton
 class BatchFileUploadUpscanNotificationBusinessService @Inject()(repo: BatchFileUploadMetadataRepo,

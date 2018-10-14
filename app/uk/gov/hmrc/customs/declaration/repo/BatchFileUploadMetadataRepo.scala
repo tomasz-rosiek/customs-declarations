@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.customs.declaration.repo
 
-import javax.inject.{Inject, Singleton}
-
 import com.google.inject.ImplementedBy
+import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONObjectID

@@ -16,12 +16,21 @@
 
 package uk.gov.hmrc.customs.declaration.config
 
+import java.time.Clock
+
 import com.google.inject.AbstractModule
 import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
+import uk.gov.hmrc.customs.declaration.services.filetransmission.TransmissionRequestProcessingJob
+import uk.gov.hmrc.customs.declaration.services.filetransmission.queue.{MongoBackedWorkItemService, QueueJob, WorkItemProcessingScheduler, WorkItemService}
 
 class CustomsDeclarationsModule extends AbstractModule {
+
   def configure() {
     // asEagerSingleton forces evaluation at application startup time
     bind(classOf[DeclarationsConfigService]).asEagerSingleton()
+    bind(classOf[QueueJob]).to(classOf[TransmissionRequestProcessingJob])
+    bind(classOf[WorkItemProcessingScheduler]).asEagerSingleton()
+    bind(classOf[WorkItemService]).to(classOf[MongoBackedWorkItemService])
+    bind(classOf[Clock]).toInstance(Clock.systemUTC())
   }
 }

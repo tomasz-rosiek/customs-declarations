@@ -45,7 +45,6 @@ import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHe
 import uk.gov.hmrc.customs.declaration.model.actionbuilders._
 import uk.gov.hmrc.customs.declaration.services.XmlValidationService
 import uk.gov.hmrc.play.test.UnitSpec
-import util.TestData
 import util.TestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
