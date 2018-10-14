@@ -28,6 +28,14 @@ import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+sealed trait FileTransmissionRequestResult
+
+case object FileTransmissionRequestSuccessful extends FileTransmissionRequestResult
+
+case class FileTransmissionRequestError(e: Throwable) extends FileTransmissionRequestResult
+
+case class FileTransmissionRequestFatalError(e: Throwable) extends FileTransmissionRequestResult
+
 @Singleton
 class FileTransmissionConnector @Inject()(http: HttpClient,
                                           logger: CdsLogger,
@@ -37,22 +45,23 @@ class FileTransmissionConnector @Inject()(http: HttpClient,
     extraHeaders = Seq(ACCEPT -> JSON, CONTENT_TYPE -> JSON, USER_AGENT -> "customs-declarations")
   )
 
-  def send[A](request: FileTransmission, apiVersion: ApiVersion): Future[Unit] = {
+  def send[A](request: FileTransmission, apiVersion: ApiVersion): Future[FileTransmissionRequestResult] = {
     post(request, config.batchFileUploadConfig.fileTransmissionBaseUrl)
   }
 
-  private def post[A](request: FileTransmission, url: String): Future[Unit] = {
+  private def post[A](request: FileTransmission, url: String): Future[FileTransmissionRequestResult] = {
 
     logger.debug(s"Sending request to file transmission service. Url: $url Payload: ${request.toString}")
-    http.POST[FileTransmission, HttpResponse](url, request).map{ _ =>
+    val a: Future[FileTransmissionRequestResult] = http.POST[FileTransmission, HttpResponse](url, request).map { _ =>
       logger.info(s"[conversationId=${request.file.reference}]: file transmission request sent successfully")
-      ()
-    }.recoverWith {
-        case httpError: HttpException => Future.failed(new RuntimeException(httpError))
-        case e: Throwable =>
-          logger.error(s"Call to file transmission failed. url=$url")
-          Future.failed(e)
-      }
+      FileTransmissionRequestSuccessful
+    }.recover {
+      case httpError: HttpException => FileTransmissionRequestError(httpError)
+      case e: Throwable =>
+        logger.error(s"Call to file transmission failed. url=$url")
+        FileTransmissionRequestError(e)
+    }
+    a
   }
 
 }

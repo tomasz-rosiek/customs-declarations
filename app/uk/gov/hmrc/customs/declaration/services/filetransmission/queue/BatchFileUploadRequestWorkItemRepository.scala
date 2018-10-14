@@ -25,7 +25,7 @@ import play.api.libs.json.{Format, Reads, __}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.bson.BSONObjectID
 import reactivemongo.play.json.ImplicitBSONHandlers._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.BatchFileUploadRequestEnvelope
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileTransmissionEnvelope
 import uk.gov.hmrc.customs.declaration.services.filetransmission.util.JodaTimeConverters._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.workitem.{WorkItem, _}
@@ -33,11 +33,11 @@ import uk.gov.hmrc.workitem.{WorkItem, _}
 class TransmissionRequestWorkItemRepository @Inject()(
     mongoComponent: ReactiveMongoComponent,
     clock: Clock)
-    extends WorkItemRepository[BatchFileUploadRequestEnvelope, BSONObjectID](
+    extends WorkItemRepository[FileTransmissionEnvelope, BSONObjectID](
       collectionName = "transmission-request",
       mongo = mongoComponent.mongoConnector.db,
       itemFormat =
-        WorkItemFormat.workItemMongoFormat[BatchFileUploadRequestEnvelope]
+        WorkItemFormat.workItemMongoFormat[FileTransmissionEnvelope]
     ) {
 
   override def now: DateTime = clock.nowAsJoda

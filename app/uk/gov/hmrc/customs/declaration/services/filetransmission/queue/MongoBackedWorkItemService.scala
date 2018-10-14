@@ -22,7 +22,7 @@ import cats.data.OptionT
 import cats.implicits._
 import javax.inject.Inject
 import org.joda.time.{DateTime, Duration}
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.BatchFileUploadRequestEnvelope
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileTransmissionEnvelope
 import uk.gov.hmrc.customs.declaration.services.filetransmission.util.JodaTimeConverters._
 import uk.gov.hmrc.workitem._
 
@@ -34,12 +34,12 @@ case class ProcessingFailed(error: Throwable) extends ProcessingResult
 case class ProcessingFailedDoNotRetry(error: Throwable) extends ProcessingResult
 
 trait QueueJob {
-  def process(item: BatchFileUploadRequestEnvelope,
+  def process(item: FileTransmissionEnvelope,
               canRetry: Boolean): Future[ProcessingResult]
 }
 
 trait WorkItemService {
-  def enqueue(request: BatchFileUploadRequestEnvelope): Future[Unit]
+  def enqueue(request: FileTransmissionEnvelope): Future[Unit]
 
   def processOne(): Future[Boolean]
 }
@@ -50,7 +50,7 @@ class MongoBackedWorkItemService @Inject()(
     clock: Clock)(implicit ec: ExecutionContext)
     extends WorkItemService {
 
-  def enqueue(request: BatchFileUploadRequestEnvelope): Future[Unit] =
+  def enqueue(request: FileTransmissionEnvelope): Future[Unit] =
     repository.pushNew(request, now()).map(_ => ())
 
   def processOne(): Future[Boolean] = {
@@ -70,7 +70,7 @@ class MongoBackedWorkItemService @Inject()(
   }
 
   private def processWorkItem(
-      workItem: WorkItem[BatchFileUploadRequestEnvelope]): Future[Unit] = {
+      workItem: WorkItem[FileTransmissionEnvelope]): Future[Unit] = {
     val request = workItem.item
 
     val nextRetryTime: DateTime = nextAvailabilityTime(workItem)
@@ -100,7 +100,7 @@ class MongoBackedWorkItemService @Inject()(
   }
 
   private def timeToGiveUp(
-      workItem: WorkItem[BatchFileUploadRequestEnvelope]): DateTime = {
+      workItem: WorkItem[FileTransmissionEnvelope]): DateTime = {
 
     val deliveryWindowDuration = Duration.standardHours(4) //TODO MC hardcoded
 //      workItem.item.request.deliveryWindowDuration

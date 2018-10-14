@@ -195,6 +195,8 @@ object BatchFileUploadRequest {
   implicit val fmt = Json.format[BatchFileUploadRequest]
 }
 
+
+
 object Whatever {
   val timeInSecondsFormat: Format[FiniteDuration] = implicitly[Format[Int]].inmap(_ seconds, _.toSeconds.toInt)
 
@@ -204,13 +206,12 @@ object Whatever {
     )
   implicit val fmt = Json.format[Whatever]
 
-
 } //TODO MC extend and change that
 
-case class BatchFileUploadRequestEnvelope(request: BatchFileUploadRequest, whatever: Whatever)
+case class FileTransmissionEnvelope(request: FileTransmission, apiVersion: String, whatever: Whatever)
 
-object BatchFileUploadRequestEnvelope {
-  implicit val fmt = Json.format[BatchFileUploadRequestEnvelope]
+object FileTransmissionEnvelope {
+  implicit val fmt = Json.format[FileTransmissionEnvelope]
 }
 
 case class BatchFileUploadFile(fileSequenceNo: FileSequenceNo, documentType: DocumentType) {

@@ -26,7 +26,8 @@ case class FileTransmissionBatch(
   fileCount: Int
 )
 object FileTransmissionBatch {
-  implicit val writes = Json.writes[FileTransmissionBatch]
+  implicit val writes = Json.writes[FileTransmissionBatch] //TODO MC remove ?
+  implicit val fmt = Json.format[FileTransmissionBatch]
 }
 
 case class FileTransmissionFile(
@@ -41,6 +42,7 @@ case class FileTransmissionFile(
 object FileTransmissionFile {
   implicit val urlFormat = HttpUrlFormat
   implicit val writes = Json.writes[FileTransmissionFile]
+  implicit val fmt = Json.format[FileTransmissionFile]
 }
 
 case class FileTransmissionInterface(
@@ -49,11 +51,13 @@ case class FileTransmissionInterface(
 )
 object FileTransmissionInterface {
   implicit var writes = Json.writes[FileTransmissionInterface]
+  implicit val fmt = Json.format[FileTransmissionInterface]
 }
 
 case class FileTransmissionProperty(name: String, value: String)
 object FileTransmissionProperty {
   implicit var writes = Json.writes[FileTransmissionProperty]
+  implicit val fmt = Json.format[FileTransmissionProperty]
 }
 
 case class FileTransmission(
@@ -66,6 +70,7 @@ case class FileTransmission(
 object FileTransmission {
   implicit val urlFormat = HttpUrlFormat
   implicit val writes = Json.writes[FileTransmission]
+  implicit val fmt = Json.format[FileTransmission]
 }
 
 sealed trait FileTransmissionOutcome {

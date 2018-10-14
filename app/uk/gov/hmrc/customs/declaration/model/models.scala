@@ -229,7 +229,7 @@ object DocumentationType {
   implicit val reader = Reads.of[String].map(new DocumentationType(_))
 }
 
-sealed trait ApiVersion {
+trait ApiVersion {
   val value: String
   val configPrefix: String
   override def toString: String = value
