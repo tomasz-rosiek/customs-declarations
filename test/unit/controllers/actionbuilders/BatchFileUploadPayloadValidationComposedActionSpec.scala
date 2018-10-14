@@ -30,7 +30,7 @@ import uk.gov.hmrc.customs.declaration.model.{DocumentType, _}
 import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
 import uk.gov.hmrc.play.test.UnitSpec
 import util.ApiSubscriptionFieldsTestData.clientId
-import util.TestData.{conversationId, nonCspRetrievalValues}
+import util.TestData.{conversationId, nrsRetrievalValues}
 import util.TestXMLData
 
 import scala.concurrent.Future
@@ -42,7 +42,7 @@ class BatchFileUploadPayloadValidationComposedActionSpec extends UnitSpec with M
     val mockLogger: DeclarationsLogger = mock[DeclarationsLogger]
     val mockBatchFileUploadPayloadValidationAction: BatchFileUploadPayloadValidationAction = mock[BatchFileUploadPayloadValidationAction]
     val mockDeclarationsConfigService = mock[DeclarationsConfigService]
-    when(mockDeclarationsConfigService.batchFileUploadConfig).thenReturn(BatchFileUploadConfig("callback.url", 3, "fileTransmissionCallbackUrl"))
+    when(mockDeclarationsConfigService.batchFileUploadConfig).thenReturn(BatchFileUploadConfig("callback.url", "callback.url", 3, "fileTransmissionCallbackUrl"))
     val action: BatchFileUploadPayloadValidationComposedAction = new BatchFileUploadPayloadValidationComposedAction(mockBatchFileUploadPayloadValidationAction, mockLogger, mockDeclarationsConfigService)
   }
 
@@ -52,9 +52,9 @@ class BatchFileUploadPayloadValidationComposedActionSpec extends UnitSpec with M
 
       private val payload: Elem = TestXMLData.validBatchFileUploadXml()
       val testAr: AuthorisedRequest[AnyContentAsXml] = AuthorisedRequest(conversationId, GoogleAnalyticsValues.Fileupload,
-          VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nonCspRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
+          VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nrsRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
       val testVpr: ValidatedPayloadRequest[AnyContentAsXml] = testAr.toValidatedPayloadRequest(payload)
-      when(mockDeclarationsConfigService.batchFileUploadConfig).thenReturn(BatchFileUploadConfig("callback.url", 1, "fileTransmissionCallbackUrl"))
+      when(mockDeclarationsConfigService.batchFileUploadConfig).thenReturn(BatchFileUploadConfig("callback.url", "callback.url", 1, "fileTransmissionCallbackUrl"))
       when(mockBatchFileUploadPayloadValidationAction.refine(testAr)).thenReturn(Future.successful(Right(testVpr)))
 
       val result = await(action.refine(testAr))
@@ -67,7 +67,7 @@ class BatchFileUploadPayloadValidationComposedActionSpec extends UnitSpec with M
 
       private val payload: Elem = TestXMLData.validBatchFileUploadXml(fileSequenceNo2 = 3)
       val testAr: AuthorisedRequest[AnyContentAsXml] = AuthorisedRequest(conversationId, GoogleAnalyticsValues.Fileupload,
-        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nonCspRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
+        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nrsRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
       val testVpr: ValidatedPayloadRequest[AnyContentAsXml] = testAr.toValidatedPayloadRequest(payload)
       when(mockBatchFileUploadPayloadValidationAction.refine(testAr)).thenReturn(Future.successful(Right(testVpr)))
 
@@ -81,7 +81,7 @@ class BatchFileUploadPayloadValidationComposedActionSpec extends UnitSpec with M
 
       private val payload: Elem = TestXMLData.validBatchFileUploadXml(1, 1, 1)
       val testAr: AuthorisedRequest[AnyContentAsXml] = AuthorisedRequest(conversationId, GoogleAnalyticsValues.Fileupload,
-        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nonCspRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
+        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nrsRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
       val testVpr: ValidatedPayloadRequest[AnyContentAsXml] = testAr.toValidatedPayloadRequest(payload)
       when(mockBatchFileUploadPayloadValidationAction.refine(testAr)).thenReturn(Future.successful(Right(testVpr)))
 
@@ -95,7 +95,7 @@ class BatchFileUploadPayloadValidationComposedActionSpec extends UnitSpec with M
 
       private val payload: Elem = TestXMLData.validBatchFileUploadXml(2, 1, 1)
       val testAr: AuthorisedRequest[AnyContentAsXml] = AuthorisedRequest(conversationId, GoogleAnalyticsValues.Fileupload,
-        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nonCspRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
+        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nrsRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
       val testVpr: ValidatedPayloadRequest[AnyContentAsXml] = testAr.toValidatedPayloadRequest(payload)
       when(mockBatchFileUploadPayloadValidationAction.refine(testAr)).thenReturn(Future.successful(Right(testVpr)))
 
@@ -109,7 +109,7 @@ class BatchFileUploadPayloadValidationComposedActionSpec extends UnitSpec with M
 
       private val payload: Elem = TestXMLData.validBatchFileUploadXml(2, 0, 1)
       val testAr: AuthorisedRequest[AnyContentAsXml] = AuthorisedRequest(conversationId, GoogleAnalyticsValues.Fileupload,
-        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nonCspRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
+        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nrsRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
       val testVpr: ValidatedPayloadRequest[AnyContentAsXml] = testAr.toValidatedPayloadRequest(payload)
       when(mockBatchFileUploadPayloadValidationAction.refine(testAr)).thenReturn(Future.successful(Right(testVpr)))
 
@@ -123,7 +123,7 @@ class BatchFileUploadPayloadValidationComposedActionSpec extends UnitSpec with M
 
       private val payload: Elem = TestXMLData.validBatchFileUploadXml()
       val testAr: AuthorisedRequest[AnyContentAsXml] = AuthorisedRequest(conversationId, GoogleAnalyticsValues.Fileupload,
-        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nonCspRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
+        VersionTwo, clientId, NonCsp(Eori("EORI123"), Some(nrsRetrievalValues)), FakeRequest("GET", "/").withXmlBody(payload))
       val testVpr: ValidatedPayloadRequest[AnyContentAsXml] = testAr.toValidatedPayloadRequest(payload)
       when(mockBatchFileUploadPayloadValidationAction.refine(testAr)).thenReturn(Future.successful(Right(testVpr)))
       val expected = Right(testVpr.toValidatedBatchFileUploadPayloadRequest(
