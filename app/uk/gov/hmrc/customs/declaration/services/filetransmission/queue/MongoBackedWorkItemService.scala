@@ -92,6 +92,8 @@ class MongoBackedWorkItemService @Inject()(
 
   private def nextAvailabilityTime[T](workItem: WorkItem[T]): DateTime = {
 
+    //TODO MC use akka predefined strategies
+
     val multiplier = Math.pow(2, workItem.failureCount).toInt
 
 //    val delay = Duration.standardSeconds(1) * multiplier //TODO MC hardcoded
