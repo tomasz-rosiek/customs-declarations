@@ -19,7 +19,7 @@ package uk.gov.hmrc.customs.declaration.services.filetransmission
 import javax.inject.Inject
 import uk.gov.hmrc.customs.api.common.logging.CdsLogger
 import uk.gov.hmrc.customs.declaration.connectors._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileTransmissionEnvelope
+import uk.gov.hmrc.customs.declaration.model.FileTransmissionEnvelope
 import uk.gov.hmrc.customs.declaration.services.filetransmission.queue._
 import uk.gov.hmrc.http.HeaderCarrier
 

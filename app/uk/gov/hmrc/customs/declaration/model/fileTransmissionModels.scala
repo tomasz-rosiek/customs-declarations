@@ -18,8 +18,10 @@ package uk.gov.hmrc.customs.declaration.model
 
 import java.net.URL
 
-import play.api.libs.json._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileSequenceNo
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{Format, JsPath, Json, _}
+
+import scala.concurrent.duration.{FiniteDuration, _}
 
 case class FileTransmissionBatch(
   id: BatchId,
@@ -28,6 +30,17 @@ case class FileTransmissionBatch(
 object FileTransmissionBatch {
   implicit val writes = Json.writes[FileTransmissionBatch] //TODO MC remove ?
   implicit val fmt = Json.format[FileTransmissionBatch]
+}
+
+case class FileSequenceNo(value: Int) extends AnyVal{
+  override def toString: String = value.toString
+}
+object FileSequenceNo {
+  implicit val writer = Writes[FileSequenceNo] { x =>
+    val d: BigDecimal = x.value
+    JsNumber(d)
+  }
+  implicit val reader = Reads.of[Int].map(new FileSequenceNo(_))
 }
 
 case class FileTransmissionFile(
@@ -131,4 +144,37 @@ object FileTransmissionCallbackDecider {
       case error: JsError => error
     }
   }
+}
+
+case class Whatever(deliveryWindowDuration: Option[FiniteDuration])
+
+case class FileGroupSize(value: Int) extends AnyVal{
+  override def toString: String = value.toString
+}
+
+object FileGroupSize {
+  implicit val writer: Writes[FileGroupSize] = Writes[FileGroupSize] { x =>
+    val d: BigDecimal = x.value
+    JsNumber(d)
+  }
+  implicit val reader: Reads[FileGroupSize] = Reads.of[Int].map(new FileGroupSize(_))
+  implicit val fmt: Format[FileGroupSize] = Format.apply(reader, writer)
+
+}
+
+object Whatever {
+  val timeInSecondsFormat: Format[FiniteDuration] = implicitly[Format[Int]].inmap(_ seconds, _.toSeconds.toInt)
+
+  implicit val finiteDurationFmt: Format[FiniteDuration] = (
+    (JsPath \ "deliveryWindowDurationInSeconds").format(
+      timeInSecondsFormat)
+    )
+  implicit val fmt = Json.format[Whatever]
+
+} //TODO MC extend and change that
+
+case class FileTransmissionEnvelope(request: FileTransmission, whatever: Whatever)
+
+object FileTransmissionEnvelope {
+  implicit val fmt = Json.format[FileTransmissionEnvelope]
 }

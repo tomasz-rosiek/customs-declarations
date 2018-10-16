@@ -17,8 +17,8 @@
 package uk.gov.hmrc.customs.declaration.controllers
 
 import java.util.UUID
-import javax.inject.Inject
 
+import javax.inject.Inject
 import play.api.libs.json._
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse

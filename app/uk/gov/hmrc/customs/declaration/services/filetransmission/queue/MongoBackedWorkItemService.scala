@@ -22,7 +22,7 @@ import cats.data.OptionT
 import cats.implicits._
 import javax.inject.Inject
 import org.joda.time.{DateTime, Duration}
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileTransmissionEnvelope
+import uk.gov.hmrc.customs.declaration.model.FileTransmissionEnvelope
 import uk.gov.hmrc.customs.declaration.services.filetransmission.util.JodaTimeConverters._
 import uk.gov.hmrc.workitem._
 

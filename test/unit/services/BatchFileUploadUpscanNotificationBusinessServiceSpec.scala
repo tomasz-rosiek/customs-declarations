@@ -25,7 +25,7 @@ import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.{FileTransmissionEnvelope, HasConversationId, Whatever}
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.HasConversationId
 import uk.gov.hmrc.customs.declaration.repo.BatchFileUploadMetadataRepo
 import uk.gov.hmrc.customs.declaration.services.filetransmission.queue.WorkItemService
 import uk.gov.hmrc.customs.declaration.services.{BatchFileUploadUpscanNotificationBusinessService, DeclarationsConfigService}

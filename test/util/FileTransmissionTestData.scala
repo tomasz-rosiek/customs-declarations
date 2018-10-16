@@ -19,7 +19,6 @@ package util
 import java.net.URL
 
 import uk.gov.hmrc.customs.declaration.model._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.FileSequenceNo
 import util.TestData.{BatchIdOne, FileReferenceOne}
 
 object FileTransmissionTestData {

@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.customs.declaration.model.actionbuilders
 
-import play.api.libs.json.{JsNumber, Reads, Writes}
+import play.api.libs.json.Json
 import play.api.mvc.{Request, Result, WrappedRequest}
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames._
 import uk.gov.hmrc.customs.declaration.model.{AuthorisedAs, _}
 
-import scala.concurrent.duration.FiniteDuration
 import scala.xml.NodeSeq
 
 object ActionBuilderModelHelper {
@@ -155,64 +154,6 @@ trait HasFileUploadProperties {
   val documentationType: DocumentationType
 }
 
-case class Whatever(deliveryWindowDuration: Option[FiniteDuration])
-
-
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{Format, JsPath, Json}
-
-import scala.concurrent.duration._
-
-case class FileSequenceNo(value: Int) extends AnyVal{
-  override def toString: String = value.toString
-}
-object FileSequenceNo {
-  implicit val writer = Writes[FileSequenceNo] { x =>
-    val d: BigDecimal = x.value
-    JsNumber(d)
-  }
-  implicit val reader = Reads.of[Int].map(new FileSequenceNo(_))
-}
-
-case class FileGroupSize(value: Int) extends AnyVal{
-  override def toString: String = value.toString
-}
-
-object FileGroupSize {
-  implicit val writer: Writes[FileGroupSize] = Writes[FileGroupSize] { x =>
-    val d: BigDecimal = x.value
-    JsNumber(d)
-  }
-  implicit val reader: Reads[FileGroupSize] = Reads.of[Int].map(new FileGroupSize(_))
-  implicit val fmt: Format[FileGroupSize] = Format.apply(reader, writer)
-
-}
-
-case class BatchFileUploadRequest(declarationId: DeclarationId, fileGroupSize: FileGroupSize, files: Seq[BatchFileUploadFile])
-
-object BatchFileUploadRequest {
-
-  implicit val fmt = Json.format[BatchFileUploadRequest]
-}
-
-
-
-object Whatever {
-  val timeInSecondsFormat: Format[FiniteDuration] = implicitly[Format[Int]].inmap(_ seconds, _.toSeconds.toInt)
-
-  implicit val finiteDurationFmt: Format[FiniteDuration] = (
-      (JsPath \ "deliveryWindowDurationInSeconds").format(
-        timeInSecondsFormat)
-    )
-  implicit val fmt = Json.format[Whatever]
-
-} //TODO MC extend and change that
-
-case class FileTransmissionEnvelope(request: FileTransmission, whatever: Whatever)
-
-object FileTransmissionEnvelope {
-  implicit val fmt = Json.format[FileTransmissionEnvelope]
-}
 
 case class BatchFileUploadFile(fileSequenceNo: FileSequenceNo, documentType: DocumentType) {
 
@@ -231,6 +172,14 @@ case class BatchFileUploadFile(fileSequenceNo: FileSequenceNo, documentType: Doc
 object BatchFileUploadFile {
   implicit val fmt = Json.format[BatchFileUploadFile]
 }
+
+case class BatchFileUploadRequest(declarationId: DeclarationId, fileGroupSize: FileGroupSize, files: Seq[BatchFileUploadFile])
+
+object BatchFileUploadRequest {
+
+  implicit val fmt = Json.format[BatchFileUploadRequest]
+}
+
 
 trait HasBatchFileUploadProperties {
   val batchFileUploadRequest: BatchFileUploadRequest

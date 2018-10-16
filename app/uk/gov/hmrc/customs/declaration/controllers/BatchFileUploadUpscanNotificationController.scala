@@ -50,11 +50,11 @@ class BatchFileUploadUpscanNotificationController @Inject()(notificationService:
           }{js =>
             UploadedReadyCallbackBody.parse(js) match {
               case JsSuccess(callbackBody, _) =>
-                implicit val conversationId = conversationIdForLogging(callbackBody.reference.value)
+                implicit val conversationId: HasConversationId = conversationIdForLogging(callbackBody.reference.value)
                 callbackBody match {
                   case ready: UploadedReadyCallbackBody =>
                     cdsLogger.debug(s"Valid JSON request received with READY status. Body: $js headers: ${request.headers}")
-                    businessService.persistAndCallFileTransmission(ready).map{_ =>
+                    businessService.persistAndCallWorkItemService(ready).map{_ =>
                         Results.NoContent
                     }.recover{
                       case e: Throwable =>
