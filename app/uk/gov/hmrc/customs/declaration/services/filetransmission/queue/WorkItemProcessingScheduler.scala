@@ -30,7 +30,8 @@ class WorkItemProcessingScheduler @Inject()(queueProcessor: WorkItemService, con
   implicit actorSystem: ActorSystem,
   applicationLifecycle: ApplicationLifecycle) {
 
-  val pollingInterval: FiniteDuration = FiniteDuration(500, MILLISECONDS) //TODO MC hardcoded
+  val pollingInterval: FiniteDuration = FiniteDuration(1, MILLISECONDS) //TODO MC hardcoded
+  //TODO MC should be 500, but for concurrency demo changed to 1
 
   val retryAfterFailureInterval: FiniteDuration =
     FiniteDuration(10000, MILLISECONDS) //TODO MC hardcoded
