@@ -111,36 +111,7 @@ class BatchFileUploadUpscanNotificationController @Inject()(notificationService:
 
   def dummy(): Action[AnyContent] = Action {
 
-    // TODO MC composed actions ^^^^^^
-
-    val fileTransmissionRequestJsonString = """{
-                                              |  "batch" : {
-                                              |    "id" : "48400000-8cf0-11bd-b23e-10b96e4ef001",
-                                              |    "fileCount" : 2
-                                              |  },
-                                              |  "callbackUrl" : "https:/foo.com/callback",
-                                              |  "file" : {
-                                              |    "reference" : "31400000-8ce0-11bd-b23e-10b96e4ef00f",
-                                              |    "name" : "someFileN.ame",
-                                              |    "mimeType" : "application/pdf",
-                                              |    "checkSum" : "asdrfgvbhujk13579",
-                                              |    "location" : "https:/foo.com/location",
-                                              |    "sequenceNumber" : 1,
-                                              |    "size" : 1
-                                              |  },
-                                              |  "interface" : {
-                                              |    "name" : "interfaceName name",
-                                              |    "version" : "1.0"
-                                              |  },
-                                              |  "properties" : [ {
-                                              |    "name" : "p1",
-                                              |    "value" : "v1"
-                                              |  }, {
-                                              |    "name" : "p2",
-                                              |    "value" : "v2"
-                                              |  } ]
-                                              |}""".stripMargin
-    val request = Json.parse(fileTransmissionRequestJsonString).as[FileTransmission]
+    val request = Json.parse(fileTransmissionRequestJsonString(UUID.randomUUID().toString)).as[FileTransmission]
     val uuid: UUID = UUID.randomUUID()
 
     val res = businessService.callWorkItemService(request)(new HasConversationId {
@@ -150,4 +121,43 @@ class BatchFileUploadUpscanNotificationController @Inject()(notificationService:
     Ok(s" $uuid <br /> $request ").as("text/html")
   }
 
+  def dummy2(ref: String): Action[AnyContent] = Action {
+
+    val request = Json.parse(fileTransmissionRequestJsonString(ref)).as[FileTransmission]
+    val uuid: UUID = UUID.randomUUID()
+
+    businessService.callWorkItemService(request)(new HasConversationId {
+      override val conversationId: ConversationId = ConversationId(uuid)
+    })
+
+    Ok(s"conversationId=$uuid <br /> $request ").as("text/html")
+  }
+
+  private def fileTransmissionRequestJsonString(fileRef: String) = s"""{
+                                                        |  "batch" : {
+                                                        |    "id" : "48400000-8cf0-11bd-b23e-10b96e4ef001",
+                                                        |    "fileCount" : 2
+                                                        |  },
+                                                        |  "callbackUrl" : "https:/foo.com/callback",
+                                                        |  "file" : {
+                                                        |    "reference" : "$fileRef",
+                                                        |    "name" : "someFileN.ame",
+                                                        |    "mimeType" : "application/pdf",
+                                                        |    "checkSum" : "asdrfgvbhujk13579",
+                                                        |    "location" : "https:/foo.com/location",
+                                                        |    "sequenceNumber" : 1,
+                                                        |    "size" : 1
+                                                        |  },
+                                                        |  "interface" : {
+                                                        |    "name" : "interfaceName name",
+                                                        |    "version" : "1.0"
+                                                        |  },
+                                                        |  "properties" : [ {
+                                                        |    "name" : "p1",
+                                                        |    "value" : "v1"
+                                                        |  }, {
+                                                        |    "name" : "p2",
+                                                        |    "value" : "v2"
+                                                        |  } ]
+                                                        |}""".stripMargin
 }
