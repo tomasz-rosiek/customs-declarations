@@ -46,7 +46,7 @@ class TransmissionRequestWorkItemRepository @Inject()(
     ??? // we don't use this, we override inProgressRetryAfter instead
 
   override lazy val inProgressRetryAfter: Duration =
-    Duration.standardSeconds(10) //TODO MC hardcoded, but not too relevant anyway for now; if you are looking for delay between retries nextAvailabilityTime in work item service is your guy
+    Duration.standardMinutes(5) //TODO MC hardcoded, but not too relevant anyway for now; if you are looking for delay between retries nextAvailabilityTime in work item service is your guy
 
   // if an item is in "inProgress" state for longer than inProgressRetryAfter, another attempt will be made even though previous one didn't fail yet
 
