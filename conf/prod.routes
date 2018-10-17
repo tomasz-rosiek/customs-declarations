@@ -29,4 +29,4 @@ GET         /status-request/mrn/:mrn      @uk.gov.hmrc.customs.declaration.contr
 
 GET        /dummy                  @uk.gov.hmrc.customs.declaration.controllers.BatchFileUploadUpscanNotificationController.dummy()
 
-GET        /dummy/:ref                  @uk.gov.hmrc.customs.declaration.controllers.BatchFileUploadUpscanNotificationController.dummy(ref)
+GET        /dummy/:ref                  @uk.gov.hmrc.customs.declaration.controllers.BatchFileUploadUpscanNotificationController.dummy2(ref)
