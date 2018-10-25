@@ -25,7 +25,7 @@ import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse._
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames._
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AnalyticsValuesAndConversationIdRequest, ExtractedHeaders, ExtractedHeadersImpl, ValidatedHeadersRequest}
+import uk.gov.hmrc.customs.declaration.model.actionbuilders._
 
 @Singleton
 class HeaderValidator @Inject()(logger: DeclarationsLogger) {
@@ -87,7 +87,7 @@ class HeaderValidator @Inject()(logger: DeclarationsLogger) {
     }
   }
 
-  def eitherBadgeIdentifier[A](implicit vhr: ValidatedHeadersRequest[A]): Either[ErrorResponse, BadgeIdentifier] = {
+  def eitherBadgeIdentifier[A](implicit vhr: HasRequest[A] with HasConversationId): Either[ErrorResponse, BadgeIdentifier] = {
     val maybeBadgeId: Option[String] = vhr.request.headers.toSimpleMap.get(XBadgeIdentifierHeaderName)
     maybeBadgeId.filter(xBadgeIdentifierRegex.findFirstIn(_).nonEmpty).map(BadgeIdentifier).toRight[ErrorResponse]{
       logger.error(s"$XBadgeIdentifierHeaderName invalid or not present for CSP")
@@ -95,7 +95,7 @@ class HeaderValidator @Inject()(logger: DeclarationsLogger) {
     }
   }
 
-  def eitherEori[A](eoriHeaderName: String)(implicit vhr: ValidatedHeadersRequest[A]): Either[ErrorResponse, Eori] = {
+  def eitherEori[A](eoriHeaderName: String)(implicit vhr: HasRequest[A] with HasConversationId): Either[ErrorResponse, Eori] = {
     val maybeEori: Option[String] = vhr.request.headers.toSimpleMap.get(eoriHeaderName)
 
     maybeEori.filter(xEoriIdentifierRegex.findFirstIn(_).nonEmpty).map(s => Eori(s)).toRight{
