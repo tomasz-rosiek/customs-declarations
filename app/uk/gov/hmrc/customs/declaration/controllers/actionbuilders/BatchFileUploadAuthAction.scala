@@ -22,7 +22,7 @@ import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames._
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.ValidatedHeadersRequest
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.{HasAnalyticsValues, HasConversationId, HasRequest}
 import uk.gov.hmrc.customs.declaration.services.{CustomsAuthService, DeclarationsConfigService}
 
 @Singleton
@@ -33,14 +33,14 @@ class BatchFileUploadAuthAction @Inject()(customsAuthService: CustomsAuthService
                                           declarationConfigService: DeclarationsConfigService)
   extends AuthAction(customsAuthService, headerValidator, logger, googleAnalyticsConnector, declarationConfigService) {
 
-  override def eitherCspAuthData[A](maybeNrsRetrievalData: Option[NrsRetrievalData])(implicit vhr: ValidatedHeadersRequest[A]): Either[ErrorResponse, AuthorisedAsCsp] = {
+  override def eitherCspAuthData[A](maybeNrsRetrievalData: Option[NrsRetrievalData])(implicit vhr: HasRequest[A] with HasConversationId with HasAnalyticsValues): Either[ErrorResponse, AuthorisedAsCsp] = {
     for {
       badgeId <- eitherBadgeIdentifier.right
       eori <- eitherEori.right
     } yield BatchFileUploadCsp(badgeId, eori, maybeNrsRetrievalData)
   }
 
-  private def eitherEori[A](implicit vhr: ValidatedHeadersRequest[A]): Either[ErrorResponse, Eori] = {
+  private def eitherEori[A](implicit vhr: HasRequest[A] with HasConversationId with HasAnalyticsValues): Either[ErrorResponse, Eori] = {
     headerValidator.eitherEori(XEoriIdentifierHeaderName).left.map{errorResponse =>
       googleAnalyticsConnector.failure(errorResponse.message)
       errorResponse

@@ -23,7 +23,7 @@ import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedRequest, ValidatedHeadersRequest}
+import uk.gov.hmrc.customs.declaration.model.actionbuilders._
 import uk.gov.hmrc.customs.declaration.services.{CustomsAuthService, DeclarationsConfigService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -78,7 +78,7 @@ class AuthAction @Inject()(
     }
   }
 
-  private def authAsCspWithMandatoryAuthHeaders[A](isNrs: Boolean)(implicit vhr: ValidatedHeadersRequest[A], hc: HeaderCarrier): Future[Either[ErrorResponse, Option[AuthorisedAsCsp]]] = {
+  private def authAsCspWithMandatoryAuthHeaders[A](isNrs: Boolean)(implicit vhr: HasRequest[A] with HasConversationId with HasAnalyticsValues, hc: HeaderCarrier): Future[Either[ErrorResponse, Option[AuthorisedAsCsp]]] = {
 
     val eventualAuthWithBadgeId: Future[Either[ErrorResponse, Option[AuthorisedAsCsp]]] = customsAuthService.authAsCsp(isNrs).map{
       case Right((isCsp, maybeNrsRetrievalData)) =>
@@ -94,12 +94,12 @@ class AuthAction @Inject()(
     eventualAuthWithBadgeId
   }
 
-  protected def eitherCspAuthData[A](maybeNrsRetrievalData: Option[NrsRetrievalData])(implicit vhr: ValidatedHeadersRequest[A]): Either[ErrorResponse, AuthorisedAsCsp] = {
+  protected def eitherCspAuthData[A](maybeNrsRetrievalData: Option[NrsRetrievalData])(implicit vhr: HasRequest[A] with HasConversationId with HasAnalyticsValues): Either[ErrorResponse, AuthorisedAsCsp] = {
 
     eitherBadgeIdentifier.right.map(badgeId => Csp(badgeId, maybeNrsRetrievalData))
   }
 
-  protected def eitherBadgeIdentifier[A](implicit vhr: ValidatedHeadersRequest[A]): Either[ErrorResponse, BadgeIdentifier] = {
+  protected def eitherBadgeIdentifier[A](implicit vhr: HasRequest[A] with HasConversationId with HasAnalyticsValues): Either[ErrorResponse, BadgeIdentifier] = {
     headerValidator.eitherBadgeIdentifier.left.map{errorResponse =>
       googleAnalyticsConnector.failure(errorResponse.message)
       errorResponse
