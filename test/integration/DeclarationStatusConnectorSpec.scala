@@ -27,7 +27,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.circuitbreaker.UnhealthyServiceException
 import uk.gov.hmrc.customs.declaration.connectors.DeclarationStatusConnector
 import uk.gov.hmrc.customs.declaration.model._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.AuthorisedStatusRequest
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedRequest, AuthorisedStatusRequest}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.Authorization
 import util.ExternalServicesConfig.{AuthToken, Host, Port}
@@ -46,7 +46,7 @@ class DeclarationStatusConnectorSpec extends IntegrationTestSpec
   private val incomingAuthToken = s"Bearer ${ExternalServicesConfig.AuthToken}"
   private val numberOfCallsToTriggerStateChange = 5
   private val unavailablePeriodDurationInMillis = 1000
-  private implicit val asr: AuthorisedStatusRequest[AnyContent] = AuthorisedStatusRequest(conversationId, GoogleAnalyticsValues.DeclarationStatus, VersionTwo, badgeIdentifier, ApiSubscriptionFieldsTestData.clientId, mock[Request[AnyContent]])
+  private implicit val asr: AuthorisedRequest[AnyContent] = AuthorisedRequest(conversationId, GoogleAnalyticsValues.DeclarationStatus, VersionTwo, ApiSubscriptionFieldsTestData.clientId, Csp(badgeIdentifier, None), mock[Request[AnyContent]])
   private implicit val hc: HeaderCarrier = HeaderCarrier(authorization = Some(Authorization(incomingAuthToken)))
 
   override protected def beforeAll() {
@@ -130,6 +130,6 @@ class DeclarationStatusConnectorSpec extends IntegrationTestSpec
   }
 
   private def sendValidXml() = {
-    connector.send(date, correlationId, dmirId, VersionTwo, mrn)
+    connector.send(date, correlationId, dmirId, VersionTwo, mrn, badgeIdentifier)
   }
 }

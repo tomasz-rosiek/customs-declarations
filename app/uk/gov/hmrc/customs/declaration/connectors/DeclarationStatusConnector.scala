@@ -22,10 +22,10 @@ import play.api.http.HeaderNames._
 import play.api.http.MimeTypes
 import uk.gov.hmrc.customs.api.common.config.ServiceConfigProvider
 import uk.gov.hmrc.customs.declaration.config.DeclarationsCircuitBreaker
-import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames.{XCorrelationIdHeaderName, XConversationIdHeaderName}
+import uk.gov.hmrc.customs.declaration.controllers.CustomHeaderNames.{XConversationIdHeaderName, XCorrelationIdHeaderName}
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.AuthorisedStatusRequest
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedRequest, AuthorisedStatusRequest}
 import uk.gov.hmrc.customs.declaration.services.DeclarationsConfigService
 import uk.gov.hmrc.customs.declaration.xml.MdgPayloadDecorator
 import uk.gov.hmrc.http._
@@ -50,13 +50,14 @@ class DeclarationStatusConnector @Inject() (val http: HttpClient,
               correlationId: CorrelationId,
               dmirId: DeclarationManagementInformationRequestId,
               apiVersion: ApiVersion,
-              mrn: Mrn)(implicit asr: AuthorisedStatusRequest[A]): Future[HttpResponse] = {
+              mrn: Mrn,
+              badgeId: BadgeIdentifier)(implicit asr: AuthorisedRequest[A]): Future[HttpResponse] = {
 
     val config = Option(serviceConfigProvider.getConfig(s"${apiVersion.configPrefix}$configKey")).getOrElse(throw new IllegalArgumentException("config not found"))
     val bearerToken = "Bearer " + config.bearerToken.getOrElse(throw new IllegalStateException("no bearer token was found in config"))
     implicit val hc: HeaderCarrier = HeaderCarrier(extraHeaders = getHeaders(date, asr.conversationId, correlationId), authorization = Some(Authorization(bearerToken)))
 
-    val declarationStatusPayload = mdgPayloadDecorator.status(asr, correlationId, date, mrn, dmirId)
+    val declarationStatusPayload = mdgPayloadDecorator.status(badgeId: BadgeIdentifier, asr, correlationId, date, mrn, dmirId)
     withCircuitBreaker(post(declarationStatusPayload, config.url, correlationId)).map{
       response => logger.debug(s"Declaration status response: ${response.body}")
       response
@@ -74,7 +75,7 @@ class DeclarationStatusConnector @Inject() (val http: HttpClient,
     )
   }
 
-  private def post[A](xml: NodeSeq, url: String, correlationId: CorrelationId)(implicit asr: AuthorisedStatusRequest[A], hc: HeaderCarrier) = {
+  private def post[A](xml: NodeSeq, url: String, correlationId: CorrelationId)(implicit asr: AuthorisedRequest[A], hc: HeaderCarrier) = {
     logger.debug(s"Sending request to $url. Headers ${hc.headers} Payload: ${xml.toString()}")
 
     http.POSTString[HttpResponse](url, xml.toString())

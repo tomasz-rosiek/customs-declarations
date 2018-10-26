@@ -17,21 +17,20 @@
 package uk.gov.hmrc.customs.declaration.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.mvc._
 import uk.gov.hmrc.customs.declaration.connectors.GoogleAnalyticsConnector
 import uk.gov.hmrc.customs.declaration.controllers.actionbuilders._
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedStatusRequest, HasConversationId}
-import uk.gov.hmrc.customs.declaration.model.{ConversationId, Mrn}
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedRequest, AuthorisedStatusRequest, HasConversationId}
+import uk.gov.hmrc.customs.declaration.model.{BadgeIdentifier, ConversationId, Csp, Mrn}
 import uk.gov.hmrc.customs.declaration.services.DeclarationStatusService
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class DeclarationStatusController @Inject()(val validateAndExtractHeadersStatusAction: ValidateAndExtractHeadersStatusAction,
+class DeclarationStatusController @Inject()(val validateAndExtractHeadersStatusAction: ValidateAndExtractHeadersAction,
                                             val authAction: AuthStatusAction,
                                             val declarationStatusValuesAction: DeclarationStatusValuesAction,
                                             val declarationStatusService: DeclarationStatusService,
@@ -45,11 +44,14 @@ class DeclarationStatusController @Inject()(val validateAndExtractHeadersStatusA
       authAction
     ).async {
 
-      implicit asr: AuthorisedStatusRequest[AnyContent] =>
+      implicit asr: AuthorisedRequest[AnyContent] =>
 
         logger.debug(s"Declaration status request  received. Payload = ${asr.body.toString} headers = ${asr.headers.headers}")
 
-        declarationStatusService.send(Mrn(mrn)) map {
+        // at this point we must be authorised as a CSP
+        val badgeId: BadgeIdentifier = asr.authorisedAs.asInstanceOf[Csp].badgeIdentifier
+
+        declarationStatusService.send(Mrn(mrn), badgeId) map {
           case Right(res) =>
             val id = new HasConversationId {
               override val conversationId: ConversationId = asr.conversationId

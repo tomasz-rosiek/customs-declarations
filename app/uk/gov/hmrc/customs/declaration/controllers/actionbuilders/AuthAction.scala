@@ -55,6 +55,8 @@ class AuthAction @Inject()(
                             declarationConfigService: DeclarationsConfigService
 ) extends ActionRefiner[ValidatedHeadersRequest, AuthorisedRequest] {
 
+  protected def authCspAndNonCsp: Boolean = true // TODO: figure out Guice magic to inject this
+
   override def refine[A](vhr: ValidatedHeadersRequest[A]): Future[Either[Result, AuthorisedRequest[A]]] = {
     implicit val implicitVhr: ValidatedHeadersRequest[A] = vhr
     implicit def hc(implicit rh: RequestHeader): HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(rh.headers)
@@ -64,11 +66,15 @@ class AuthAction @Inject()(
     authAsCspWithMandatoryAuthHeaders(isNrs).flatMap{
       case Right(maybeAuthorisedAsCspWithBadgeIdentifierAndNrsData) =>
         maybeAuthorisedAsCspWithBadgeIdentifierAndNrsData.fold{
-          customsAuthService.authAsNonCsp(isNrs).map[Either[Result, AuthorisedRequest[A]]]{
-            case Left(errorResponse) =>
-              Left(errorResponse.XmlResult.withConversationId)
-            case Right(nonCspData) =>
-              Right(vhr.toNonCspAuthorisedRequest(nonCspData.eori, nonCspData.retrievalData))
+          if (authCspAndNonCsp) {
+            customsAuthService.authAsNonCsp(isNrs).map[Either[Result, AuthorisedRequest[A]]] {
+              case Left(errorResponse) =>
+                Left(errorResponse.XmlResult.withConversationId)
+              case Right(nonCspData) =>
+                Right(vhr.toNonCspAuthorisedRequest(nonCspData.eori, nonCspData.retrievalData))
+            }
+          } else {
+            Future.successful(Left(ErrorResponse.ErrorUnauthorized.XmlResult.withConversationId)) //TODO: error messsage
           }
         }{ cspData =>
           Future.successful(Right(vhr.toCspAuthorisedRequest(cspData)))

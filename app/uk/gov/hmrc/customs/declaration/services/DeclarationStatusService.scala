@@ -17,14 +17,13 @@
 package uk.gov.hmrc.customs.declaration.services
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.mvc.Result
 import uk.gov.hmrc.customs.api.common.controllers.ErrorResponse
 import uk.gov.hmrc.customs.declaration.connectors.DeclarationStatusConnector
 import uk.gov.hmrc.customs.declaration.logging.DeclarationsLogger
 import uk.gov.hmrc.customs.declaration.model._
 import uk.gov.hmrc.customs.declaration.model.actionbuilders.ActionBuilderModelHelper._
-import uk.gov.hmrc.customs.declaration.model.actionbuilders.AuthorisedStatusRequest
+import uk.gov.hmrc.customs.declaration.model.actionbuilders.{AuthorisedRequest, AuthorisedStatusRequest}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -41,16 +40,16 @@ class DeclarationStatusService @Inject()(statusResponseFilterService: StatusResp
                                          dateTimeProvider: DateTimeService,
                                          uniqueIdsService: UniqueIdsService) {
 
-  def send[A](mrn: Mrn)(implicit asr: AuthorisedStatusRequest[A], hc: HeaderCarrier): Future[Either[Result, HttpResponse]] = {
+  def send[A](mrn: Mrn, badgeId: BadgeIdentifier)(implicit asr: AuthorisedRequest[A], hc: HeaderCarrier): Future[Either[Result, HttpResponse]] = {
 
     val dateTime = dateTimeProvider.nowUtc()
     val correlationId = uniqueIdsService.correlation
     val dmirId = uniqueIdsService.dmir
 
-    connector.send(dateTime, correlationId, dmirId, asr.requestedApiVersion, mrn)
+    connector.send(dateTime, correlationId, dmirId, asr.requestedApiVersion, mrn, badgeId)
       .map(response => {
         val xmlResponseBody = XML.loadString(response.body)
-        statusResponseValidationService.validate(xmlResponseBody, asr.badgeIdentifier) match {
+        statusResponseValidationService.validate(xmlResponseBody, badgeId) match {
           case Right(_) => Right(filterResponse(response, xmlResponseBody))
           case Left(errorResponse) => Left(errorResponse.XmlResult.withConversationId)
           case _ => Left(ErrorResponse.ErrorGenericBadRequest.XmlResult.withConversationId)
