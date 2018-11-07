@@ -159,7 +159,7 @@ object TestXMLData {
         </AcceptanceDateTime>
         <FunctionCode>9</FunctionCode>
         <FunctionalReferenceID>DemoUK20161207_010</FunctionalReferenceID>
-        <TypeCode>IMZ</TypeCode>
+        <TypeCode>IMJ</TypeCode>
         <DeclarationOfficeID>0051</DeclarationOfficeID>
         <TotalPackageQuantity>1</TotalPackageQuantity>
         <Agent>

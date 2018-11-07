@@ -18,17 +18,19 @@ package uk.gov.hmrc.customs.declaration.services
 
 import java.io.{FileNotFoundException, StringReader}
 import java.net.URL
-
 import javax.inject.Inject
 import javax.xml.XMLConstants
 import javax.xml.transform.Source
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.{Schema, SchemaFactory}
+
+import akka.actor.Status.Success
 import org.xml.sax.{ErrorHandler, SAXParseException}
 import play.api.Configuration
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
 import scala.xml.{NodeSeq, SAXException}
 
 abstract class XmlValidationService @Inject()(val configuration: Configuration, val schemaPropertyName: String) {
@@ -49,7 +51,18 @@ abstract class XmlValidationService @Inject()(val configuration: Configuration, 
   private lazy val maxSAXErrors = configuration.getInt("xml.max-errors").getOrElse(Int.MaxValue)
 
   def validate(xml: NodeSeq)(implicit ec: ExecutionContext): Future[Unit] = {
-    Future(doValidate(xml))
+
+    typeCodeValidation(xml) match {
+      case true => Future(doValidate(xml))
+      case false => Future.failed(new Exception("TypeCode is invalid or missing"))
+    }
+  }
+
+  private val validTypeCodes = Set( "IMJ", "EXJ", "COJ", "IMK", "EXK", "COK")
+  private def typeCodeValidation(xml: NodeSeq): Boolean = {
+
+    val typeCode = (xml \\ "Declaration" \"TypeCode").text
+    validTypeCodes.contains(typeCode)
   }
 
   private def doValidate(xml: NodeSeq): Unit = {
