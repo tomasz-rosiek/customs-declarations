@@ -78,6 +78,7 @@ class CustomsDeclarationControllerSpec extends UnitSpec
     protected val common = new Common(stubAuthAction, stubValidateAndExtractHeadersAction, mockLogger)
 
     protected val controller: CustomsDeclarationController = new CustomsDeclarationController(common, mockBusinessService, stubPayloadValidationAction, endpointAction, Some(mockGoogleAnalyticsConnector), Some(mockMetricsConnector)) {}
+    protected val controllerWithoutMetrics: CustomsDeclarationController = new CustomsDeclarationController(common, mockBusinessService, stubPayloadValidationAction, endpointAction, Some(mockGoogleAnalyticsConnector), None) {}
 
     protected def awaitSubmit(request: Request[AnyContent]): Result = {
       await(controller.post().apply(request))
@@ -127,7 +128,27 @@ class CustomsDeclarationControllerSpec extends UnitSpec
       verifyNonCspAuthorisationCalled(numberOfTimes = 1)
     }
 
-    "respond with status 202 and conversationId in header and log google analytics and metrics for a processed valid CSP request" in new SetUp() {
+    "NOT log Metrics when not configured" in new SetUp() {
+      authoriseCsp()
+      when(mockDateTimeService.zonedDateTimeUtc).thenReturn(EventStart)
+
+      val result: Future[Result] = controllerWithoutMetrics.post().apply(ValidSubmissionV2Request)
+
+      status(result) shouldBe ACCEPTED
+      verifyZeroInteractions(mockMetricsConnector)
+    }
+
+    "log Metrics when configured" in new SetUp() {
+      authoriseCsp()
+      when(mockDateTimeService.zonedDateTimeUtc).thenReturn(EventStart)
+
+      val result: Future[Result] = submit(ValidSubmissionV2Request)
+
+      status(result) shouldBe ACCEPTED
+      verifyMetrics
+    }
+
+    "respond with status 202 and conversationId in header and log google analytics for a processed valid CSP request" in new SetUp() {
       authoriseCsp()
       when(mockDateTimeService.zonedDateTimeUtc).thenReturn(EventStart)
 
@@ -136,7 +157,6 @@ class CustomsDeclarationControllerSpec extends UnitSpec
       status(result) shouldBe ACCEPTED
       header(X_CONVERSATION_ID_NAME, result) shouldBe Some(conversationIdValue)
       verify(mockGoogleAnalyticsConnector).success(any[HasConversationId with HasAnalyticsValues])
-      verifyMetrics
     }
 
     "respond with status 400 for a CSP request with a missing X-Badge-Identifier" in new SetUp() {
@@ -167,7 +187,7 @@ class CustomsDeclarationControllerSpec extends UnitSpec
       verifyZeroInteractions(mockXmlValidationService)
     }
 
-    "respond with status 202 and conversationId in header and log google analytics and metrics for a processed valid non-CSP request" in new SetUp() {
+    "respond with status 202 and conversationId in header and log google analytics for a processed valid non-CSP request" in new SetUp() {
       authoriseNonCsp(Some(declarantEori))
       when(mockDateTimeService.zonedDateTimeUtc).thenReturn(EventStart)
 
@@ -176,7 +196,6 @@ class CustomsDeclarationControllerSpec extends UnitSpec
       status(result) shouldBe ACCEPTED
       header(X_CONVERSATION_ID_NAME, result) shouldBe Some(conversationIdValue)
       verify(mockGoogleAnalyticsConnector).success(any[HasConversationId with HasAnalyticsValues])
-      verifyMetrics
     }
 
     "return result 401 UNAUTHORISED and conversationId in header when call is unauthorised for both CSP and non-CSP submissions" in new SetUp() {
