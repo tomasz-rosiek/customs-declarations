@@ -282,11 +282,7 @@ case class ValidatedPayloadRequest[A](
   authorisedAs: AuthorisedAs,
   xmlBody: NodeSeq,
   request: Request[A]
-) extends GenericValidatedPayloadRequest(conversationId, analyticsValues, start, requestedApiVersion, clientId, authorisedAs, xmlBody, request) {
-  def isSubmitDec: Boolean = {
-    analyticsValues == GoogleAnalyticsValues.Submit
-  }
-}
+) extends GenericValidatedPayloadRequest(conversationId, analyticsValues, start, requestedApiVersion, clientId, authorisedAs, xmlBody, request)
 
 case class ValidatedUploadPayloadRequest[A](
   conversationId: ConversationId,
