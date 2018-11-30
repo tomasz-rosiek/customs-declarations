@@ -149,7 +149,7 @@ class DeclarationServiceSpec extends UnitSpec with MockitoSugar {
   "should not have nrs receipt id when call to nrs does not return in time" in new SetUp() {
 
     when(mockNrsService.send(vpr, headerCarrier)).thenReturn(Future {
-      Thread.sleep(1000)
+      Thread.sleep(3000)
       nrSubmissionId
     })
 

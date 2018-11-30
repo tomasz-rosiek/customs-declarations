@@ -33,11 +33,11 @@ class FutureUtilSpec extends AsyncFlatSpec with Matchers with OptionValues with 
     "complete the users future when it returns before the timeout" in {
 
     def myFuture: Future[Int] = Future[Int] {
-      Thread.sleep((2 seconds).toMillis)
+      Thread.sleep((400 milliseconds).toMillis)
       100
     }
 
-    FutureUtil.futureWithTimeout(myFuture, 3 seconds, actorSystem).map {
+    FutureUtil.futureWithTimeout(myFuture, 4 seconds, actorSystem).map {
       result => if(result == 100) succeed else fail
     }
   }
@@ -50,7 +50,7 @@ class FutureUtilSpec extends AsyncFlatSpec with Matchers with OptionValues with 
     }
 
     recoverToSucceededIf[TimeoutException] {
-      FutureUtil.futureWithTimeout(myFuture, 2 seconds, actorSystem)
+      FutureUtil.futureWithTimeout(myFuture, 400 milliseconds, actorSystem)
     }
   }
 }
