@@ -29,8 +29,12 @@ class FutureUtilSpec extends AsyncFlatSpec with Matchers with OptionValues with 
 
   val actorSystem = ActorSystem("test")
 
+  val cpus = Runtime.getRuntime.availableProcessors
+
   "FutureUtil" should
-    "complete the users future when it returns before the timeout" in {
+    s"complete the users future when it returns before the timeout on ${cpus} CPUs" in {
+
+
 
     def myFuture: Future[Int] = Future[Int] {
       Thread.sleep((2 seconds).toMillis)
@@ -42,7 +46,9 @@ class FutureUtilSpec extends AsyncFlatSpec with Matchers with OptionValues with 
     }
   }
 
-  it should "not complete the future when it returns after the timeout" in {
+  it should s"not complete the future when it returns after the timeout having ${cpus} CPUs" in {
+
+
 
     lazy val myFuture = Future[Int] {
       Thread.sleep((4 seconds).toMillis)
