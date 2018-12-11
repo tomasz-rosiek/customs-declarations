@@ -22,6 +22,7 @@ import uk.gov.hmrc.customs.declaration.util.FutureUtil
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future, TimeoutException}
+import scala.concurrent.blocking
 
 class FutureUtilSpec extends AsyncFlatSpec with Matchers with OptionValues with Inside with Inspectors {
 
@@ -37,7 +38,9 @@ class FutureUtilSpec extends AsyncFlatSpec with Matchers with OptionValues with 
 
 
     def myFuture: Future[Int] = Future[Int] {
-      Thread.sleep((2 seconds).toMillis)
+      blocking {
+        Thread.sleep((2 seconds).toMillis)
+      }
       100
     }
 
@@ -51,7 +54,9 @@ class FutureUtilSpec extends AsyncFlatSpec with Matchers with OptionValues with 
 
 
     lazy val myFuture = Future[Int] {
-      Thread.sleep((4 seconds).toMillis)
+      blocking {
+        Thread.sleep((4 seconds).toMillis)
+      }
       100
     }
 

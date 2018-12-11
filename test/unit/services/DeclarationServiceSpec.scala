@@ -40,6 +40,7 @@ import util.ApiSubscriptionFieldsTestData._
 import util.TestData._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.blocking
 import scala.concurrent.Future
 import scala.xml.NodeSeq
 
@@ -149,7 +150,9 @@ class DeclarationServiceSpec extends UnitSpec with MockitoSugar {
   "should not have nrs receipt id when call to nrs does not return in time" in new SetUp() {
 
     when(mockNrsService.send(vpr, headerCarrier)).thenReturn(Future {
-      Thread.sleep(1000)
+      blocking {
+        Thread.sleep(1000)
+      }
       nrSubmissionId
     })
 
